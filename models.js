@@ -57,6 +57,30 @@ const Course = sequelize.define('Course', {
   }
 }) 
 
+const UserCourse = sequelize.define('UserCourse', {
+  id: {
+    type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true
+  }
+})
+
+const Grade = sequelize.define('Grade', {
+  name: {
+    type: DataTypes.STRING
+  }
+})
+
+
+const Test = {
+  name: { 
+    type: DataTypes.STRING 
+  },
+  questions: {
+    type: DataTypes.TEXT
+  }
+} 
+
+
+
 
 //todo
 
@@ -77,6 +101,9 @@ const Course = sequelize.define('Course', {
 User.hasMany(User)
 User.belongsTo(User)
 
+Grade.hasOne(User)
+User.belongsTo(Grade)
+
 User.belongsToMany(Course, {through: UserCourse})
 Course.belongsToMany(User, {through: UserCourse })
 
@@ -84,6 +111,7 @@ Course.belongsToMany(User, {through: UserCourse })
 module.exports = {
     User,
     Course,
-    UserCourse
+    UserCourse,
+    Grade
 }
 

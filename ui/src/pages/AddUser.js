@@ -8,6 +8,10 @@ import {
   Typography,
   Snackbar,
   Alert,
+  MenuItem,
+  InputLabel,
+  Select,
+  OutlinedInput,
  } from "@mui/material";
 import { Container } from "@mui/system";
 import { useEffect, useState } from "react";
@@ -37,6 +41,23 @@ export default function AddUser() {
   const [isSetLeader, setLeaderFlag] = useState(false)
 
   const [leaderId, setLeader] = useState(null)
+
+  const [grades, setGrades] = useState([{id: -1}])
+
+  const [grade, setGrade] = useState('')
+
+  const handleChange = (evt) => {
+
+    if (evt.target.value === grades[grades.length - 1].id) {
+      setIsLeader(true)
+    }
+    
+    if (isLeader && evt.target.value !== grades[grades.length - 1].id) {
+      setIsLeader(false)
+    }
+
+    setGrade(evt.target.value);
+  };
 
   const checkRelations = () => {
     let current = {}
@@ -70,6 +91,15 @@ export default function AddUser() {
     }
   }
 
+  const getGrades = async () => {
+    try {
+      let response = await request('gradesList', 'GET', {})
+      setGrades(response.grades)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   const handleSubmit = async (evt) => {
     evt.preventDefault();
     try {
@@ -93,7 +123,8 @@ export default function AddUser() {
         password: data.get('password'),
         isLeader: isLeader,
         userIds: checkedUsers,
-        leaderId
+        leaderId,
+        GradeId: grade
       })
 
       if (response.hasOwnProperty('error')) {
@@ -123,6 +154,7 @@ export default function AddUser() {
 
   useEffect(() => {
     getUsers()
+    getGrades()
   }, [])
 
   return (
@@ -177,10 +209,37 @@ export default function AddUser() {
             id="password"
             autoComplete="current-password"
           />
+          <InputLabel>Компетенция</InputLabel>
+          <Select
+            displayEmpty
+            value={grade}
+            onChange={handleChange}
+            input={<OutlinedInput />}
+            renderValue={(selected) => {
+              if (selected.length === 0) {
+                return <em>Не выбрано</em>;
+              }
+
+              return grades.find(grade => grade.id === selected).name;
+            }}
+            inputProps={{ 'aria-label': 'Without label' }}
+          >
+            <MenuItem disabled value="">
+              <em>Не выбрано</em>
+            </MenuItem>
+            {grades.map((grade) => (
+              <MenuItem
+                key={grade.name}
+                value={grade.id}
+              >
+                {grade.name}
+              </MenuItem>
+            ))}
+          </Select>
           <Box>
             <FormControlLabel
               control={
-              <Checkbox onClick={() => setIsLeader(!isLeader)} checked={isLeader} color="primary" />
+              <Checkbox disabled={grade !== grades[grades.length - 1].id} onClick={() => setIsLeader(!isLeader)} checked={isLeader} color="primary" />
             }
               label="Руководитель"
             />

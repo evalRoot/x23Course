@@ -36,13 +36,14 @@ export default function Login() {
         notifyShow(true)
         return
       }
-  
       token = jwtDecode(response.token)
       user.setUser(token)
       user.setIsAuth(true)
       localStorage.setItem('token', response.token)
       navigate('/dashboard')
     } catch (error) {
+      setNotifyText('Неизвестная ошибка сервера')
+      notifyShow(true)
       console.log(error)
     }
   };
@@ -62,7 +63,7 @@ export default function Login() {
           <LockOutlinedIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
-          Войти
+          Вход
         </Typography>
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
           <TextField

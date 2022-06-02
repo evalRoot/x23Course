@@ -1,4 +1,4 @@
-const { User } = require('../models')
+const { User, Grade } = require('../models')
 const jwt = require('jsonwebtoken') 
 const bcrypt = require('bcrypt');
 const saltRounds = 10
@@ -184,6 +184,20 @@ class UserController {
       console.log('---')
       res.status(400).json({
           message: 'Неизвестная ошибка при получение руководителя'
+      })
+    }
+  }
+
+  async gradesList(req, res) {
+    try {
+      const grades = await Grade.findAll()
+      return res.status(200).json({grades})
+    } catch (error) {
+      console.log('---')
+      console.log(error, 'AuthControll gradesList error')
+      console.log('---')
+      res.status(400).json({
+          message: 'Неизвестная ошибка при получение список компетенции' 
       })
     }
   }
