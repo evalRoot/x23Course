@@ -69,7 +69,6 @@ const Grade = sequelize.define('Grade', {
   }
 })
 
-
 const Test = {
   name: { 
     type: DataTypes.STRING 
