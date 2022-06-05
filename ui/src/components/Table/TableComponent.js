@@ -19,7 +19,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import SearchNotFound from './SearchNotFound';
 import TableHeadComponent from './TableHeadComponent';
 
-// ----------------------------------------------------------------------
+let tableHeader = []
 
 const TABLE_HEAD = [
   { id: '1', label: 'Электронный курс', alignRight: false },
@@ -29,28 +29,6 @@ const TABLE_HEAD = [
   { id: '5', label: 'Балы', alignRight: false },
   { id: '6', label: 'Статус', alignRight: false }
 ];
-
-// const columns = [
-//   {
-//     id: 1,
-//     name: 'Кодекс делового поведения и этики',
-//     startDate: '20.04.2022 16:18',
-//     startEnd: '20.04.2022 16:07',
-//     lastVisited: '',
-//     score: '0',
-//     status: 'В процессе'
-//   },
-//   {
-//     id: 2,
-//     name: 'Охрана труда',
-//     startDate: '02.04.2022 16:18',
-//     startEnd: '03.04.2022 16:07',
-//     lastVisited: '03.05.2022 16:20',
-//     score: '98',
-//     status: 'Завершен'
-//   }
-// ]
-
 
 // ----------------------------------------------------------------------
 
@@ -118,6 +96,12 @@ export default function TableComponent(props) {
     setOrderBy(property);
   };
 
+  if (props.all) {
+    tableHeader = TABLE_HEAD.filter(thead => thead.id === '1')
+  } else {
+    tableHeader = TABLE_HEAD
+  }
+
   // const handleSelectAllClick = (evt) => {
   //   if (evt.target.checked) {
   //     const newSelecteds = columns.map((n) => n.name);
@@ -165,7 +149,7 @@ export default function TableComponent(props) {
             <TableHeadComponent
               order={order}
               orderBy={orderBy}
-              headLabel={TABLE_HEAD}
+              headLabel={tableHeader}
               rowCount={columns.length}
               // numSelected={selected.length}
               onRequestSort={handleRequestSort}
@@ -173,15 +157,15 @@ export default function TableComponent(props) {
             />
             <TableBody>
                 {filteredItems.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                  console.log(row)
                 const { id, name, startDate, startEnd, lastVisited, score, status } = row;
-
                 return (
                     <TableRow
                     hover
                     key={id}
                     tabIndex={-1}
                     >
-                      <TableCell align='left'><a href={`course/${id}`}> {name} </a></TableCell>
+                      <TableCell align='left'><a href={`courses/${id}`}> {name} </a></TableCell>
                       <TableCell align="left">{startDate}</TableCell>
                       <TableCell align="left">{startEnd}</TableCell>
                       <TableCell align="left">{lastVisited}</TableCell>

@@ -46,7 +46,7 @@ export default observer(function Sidebar() {
             },
             {
               title: 'Добавить Курс',
-              path: '/add-course',
+              path: '/course-update',
               icon: <AddBoxIcon fontSize='medium'/>,
               permission: user.getUser.role === ADMIN_ROLE
             },

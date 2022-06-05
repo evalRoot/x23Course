@@ -227,9 +227,9 @@ export default function AddUser() {
             <MenuItem disabled value="">
               <em>Не выбрано</em>
             </MenuItem>
-            {grades.map((grade) => (
+            {grades.map((grade, index) => (
               <MenuItem
-                key={grade.name}
+                key={index}
                 value={grade.id}
               >
                 {grade.name}

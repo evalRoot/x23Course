@@ -44,7 +44,7 @@ export default function SaveEditor() {
       successText: response.message,
     })
 
-    navigate(`course/${response.id}`)
+    navigate(`courses/${response.id}`)
   }
 
   return (

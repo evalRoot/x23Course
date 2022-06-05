@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import TableComponent from "../components/Table/TableComponent";
 import request from "../helpers/request";
+import PropTypes from 'prop-types';
+
+CoursesList.propTypes = {
+  assign: PropTypes.bool,
+  complete: PropTypes.bool,
+  all: PropTypes.bool
+};
 
 export default function CoursesList (props) {
   const [columns, setColumns] = useState([])
@@ -22,6 +29,6 @@ export default function CoursesList (props) {
   }, []) 
 
   return (
-    <TableComponent columns={columns} />
+    <TableComponent all={props.all} columns={columns} />
   )
 }

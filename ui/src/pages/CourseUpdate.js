@@ -6,21 +6,23 @@ import StepContent from '@mui/material/StepContent';
 import Button from '@mui/material/Button';
 import { useRef, useState } from 'react';
 import { Container } from '@mui/system';
-import { Alert, Snackbar, TextField } from '@mui/material';
+import { Alert, AlertTitle, LinearProgress, Snackbar, TextField, Typography } from '@mui/material';
 import Editor from '../components/Editor/Editor';
 import request from '../helpers/request';
 import { useNavigate } from 'react-router-dom';
-import AddTest from '../components/AddTest';
+import AddQuiz from '../components/AddQuiz';
 
 const labels = []
 
-export default function VerticalLinearStepper() {
+export default function CourseUpdate() {
   const [courseName, setCourseName] = useState('')
   const [activeStep, setActiveStep] = useState(0)
-  const [loading, setLoading] = useState()
+  const [loading, setLoading] = useState(false)
   const [steps, setStep] = useState([])
   const editorStateRefs = useRef([])
   const navigate = useNavigate()
+  const [isTestFinish, setTestFinish] = useState(false)
+  const [questions, setQuestions] = useState([])
   const [notify, notifySet] = useState({
     errorIsOpen: false,
     successIsOpen: false,
@@ -92,9 +94,12 @@ export default function VerticalLinearStepper() {
       })
   
       course.name = courseName
-      
+
+      setLoading(true)
+
       response = await request('addCouse', 'POST', {
-        course
+        course,
+        questions
       })
 
       if (response.hasOwnProperty('error')) {
@@ -113,8 +118,10 @@ export default function VerticalLinearStepper() {
         errorText: '',
         successText: response.message,
       })
+      
+      setLoading(false)
 
-      navigate(`/course/${response.id}`)
+      navigate(`/courses/${response.id}`)
     } catch (error) {
       console.log(error)
     }
@@ -148,7 +155,7 @@ export default function VerticalLinearStepper() {
       }}>
         <Stepper nonLinear activeStep={activeStep} orientation="vertical">
           {steps.map((step, index) => (
-            <Step key={index}>
+            <Step disabled={loading} key={index}>
               <StepButton
                 onClick={handleStep(index)}
               >
@@ -179,7 +186,7 @@ export default function VerticalLinearStepper() {
                       onClick={handleNext}
                       sx={{ mt: 1, mr: 1 }}
                     >
-                      {index === steps.length - 1 ? 'Завершить курс' : 'Следующий Модуль'}
+                      {index === steps.length - 1 ? 'Завершить Добавление Модулей' : 'Следующий Модуль'}
                     </Button>
                     <Button
                       disabled={index === 0}
@@ -194,12 +201,22 @@ export default function VerticalLinearStepper() {
             </Step>
           ))}
         </Stepper>
-        <AddTest/>
-        {(activeStep === steps.length && steps.length !== 0) &&
+        <AddQuiz loading={loading} handleFinish={(questions, value) => {
+          setQuestions(questions)
+          setTestFinish(value)
+        }} />
+        {(isTestFinish && activeStep === steps.length && steps.length !== 0) &&
+          <Button onClick={handleSave} sx={{ mt: 1, mr: 1 }}>
+            Сохранить Курс
+          </Button>
+        }
+        {loading &&
           <>
-            <Button onClick={handleSave} sx={{ mt: 1, mr: 1 }}>
-              Сохранить Курс
-            </Button>
+          <Alert severity="info">
+            <AlertTitle>Загрузка</AlertTitle>
+            <span style={{fontSize: 16}}>Идет добавление <strong>курса</strong></span>
+          </Alert>
+            <LinearProgress />
           </>
         }
       </Box>

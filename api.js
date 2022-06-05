@@ -16,5 +16,6 @@ router.post('/assignCourse', courseController.assign)
 router.post('/assignCourses', courseController.assignCourses)
 router.post('/assignUsers', userController.usersFromLeader)
 router.get('/gradesList', userController.gradesList)
+router.post('/courseQuiz', courseController.courseQuiz)
 
 module.exports = router

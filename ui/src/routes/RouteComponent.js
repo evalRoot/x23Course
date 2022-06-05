@@ -17,8 +17,9 @@ import AddUser from "../pages/AddUser";
 import { APPBAR_DESKTOP, DRAWER_WIDTH } from "../const";
 import Courses from "../pages/Courses";
 import CourseDetail from "../pages/CourseDetail";
-import AddCourse from "../pages/AddCourse";
 import ModuleDetail from "../pages/ModuleDetail";
+import CourseUpdate from "../pages/CourseUpdate";
+import Quiz from "../pages/Quiz";
 
 
 export default observer(function RouteComponent(props) {
@@ -71,21 +72,26 @@ export default observer(function RouteComponent(props) {
                 <Courses/>
               </RequireAuth>
             }/>
-            <Route path='/add-course' element={
+            <Route path='/course-update' element={
               <RequireAuth>
-                <AddCourse/>
+                <CourseUpdate/>
               </RequireAuth>
             }/>
-            <Route path="/course/:id" element={
+            <Route path="/courses/:id" element={
               <RequireAuth>
                 <CourseDetail/>
               </RequireAuth>
-            } />
-            <Route path="/course/:id/module-detail" element={
+            }/>
+            <Route path="/courses/:id/module-detail" element={
               <RequireAuth>
                 <ModuleDetail/>
               </RequireAuth>
-            } />
+            }/>
+            <Route path="/courses/:id/quiz" element={
+              <RequireAuth>
+                <Quiz/>
+              </RequireAuth>
+            }/>
             <Route path="/login" element={viewLogin()} />
           </Routes>
         </ArtcicleStyle>

@@ -39,7 +39,7 @@ function Courses() {
             <CoursesList userId={user.getUser.id} complete />
           </TabPanel>
           <TabPanel value={value} index={2}>
-            <CoursesList/>
+            <CoursesList all />
           </TabPanel>
         </Box>
     </Container>

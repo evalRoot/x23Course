@@ -37,6 +37,12 @@ const Course = sequelize.define('Course', {
   modules: {
     type: DataTypes.TEXT,
     allowNull: false
+  }
+}) 
+
+const UserCourse = sequelize.define('UserCourse', {
+  id: {
+    type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true
   },
   activationDate: {
     type: DataTypes.DATE,
@@ -55,12 +61,6 @@ const Course = sequelize.define('Course', {
     type: DataTypes.STRING,
     defaultValue: 'Не пройден'
   }
-}) 
-
-const UserCourse = sequelize.define('UserCourse', {
-  id: {
-    type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true
-  }
 })
 
 const Grade = sequelize.define('Grade', {
@@ -69,32 +69,14 @@ const Grade = sequelize.define('Grade', {
   }
 })
 
-const Test = {
+const courseQuiz = sequelize.define('Test' , {
   name: { 
     type: DataTypes.STRING 
   },
   questions: {
     type: DataTypes.TEXT
   }
-} 
-
-
-
-
-//todo
-
-//test
-// id
-//...
-
-// questions:
-// id | question
-
-// answers:
-// id | question_id | answer
-
-// answer_user
-// answer_id | user_id (или question_id | answer_id | user_id)
+})
 
 //Associations
 User.hasMany(User)
@@ -106,11 +88,15 @@ User.belongsTo(Grade)
 User.belongsToMany(Course, {through: UserCourse})
 Course.belongsToMany(User, {through: UserCourse })
 
+Course.hasOne(courseQuiz)
+courseQuiz.belongsTo(Course)
+
 
 module.exports = {
     User,
     Course,
     UserCourse,
-    Grade
+    Grade,
+    courseQuiz
 }
 

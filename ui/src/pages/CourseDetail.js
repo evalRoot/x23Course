@@ -30,17 +30,19 @@ export default function CourseDetail (props) {
   const [users, setUsers] = useState([])
   const [checked, setCheckedUsers] = useState([])
   const {user} = useContext(Context)
+  const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate()
 
   const toModule = (index) => {
     navigate('module-detail', {
-      state: { currModule: modules[index] }
+      state: { 
+        currModule: index,
+        modules: modules,
+      }
     })
   }
-
-  const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleModalOpen = () => setShowModal(true);
+  const handleModalClose = () => setShowModal(false);
 
   useEffect(() => {
     (async () => {
@@ -80,7 +82,7 @@ export default function CourseDetail (props) {
       courseId: id,
       usersIds: checked
     })
-
+    setShowModal(false)
     console.log(response)
   }
 
@@ -117,7 +119,7 @@ export default function CourseDetail (props) {
             <AccountTreeIcon style={{marginLeft: 10}} fontSize="medium"/>
           </Typography>
           <Box style={{marginBottom: 20}}>
-            <Button onClick={handleOpen} variant="contained" size="large">
+            <Button onClick={handleModalOpen} variant="contained" size="large">
               {user.getUser.role === USER_ROLE ? 'Записаться на курс' : 'Назначить сотрудникам'}
             </Button>
           </Box>
@@ -135,15 +137,22 @@ export default function CourseDetail (props) {
                   </span>
                 </li>
               ))}
+              <li className="">
+                <p>Модуль</p>
+                <span style={{
+                    cursor: 'pointer',
+                    color: '#2065D1',
+                    textDecoration: 'underline'
+                  }} onClick={() => navigate('quiz')}>
+                    Тест
+                </span>
+              </li>
             </ol>
-            <p> 
-              Тест
-            </p>
           </Container>
         </div>
         <Modal
-          open={open}
-          onClose={handleClose}
+          open={showModal}
+          onClose={handleModalClose}
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
         >
