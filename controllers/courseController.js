@@ -143,7 +143,41 @@ class CourseController {
         message: 'Неизвестная ошибка при получении теста'
       })
     }
+  }
 
+  async finishQuiz(req, res) {
+    try {
+      const {
+        courseId,
+        userId,
+        startDate,
+        endDate,
+        score,
+        status
+      } = req.body
+
+      const userCourse = await UserCourse.findOne({ where: {
+        CourseId: courseId,
+        UserId: userId
+      }})
+
+      userCourse.update({
+        startDate,
+        endDate,
+        score,
+        status
+      })
+
+      console.log(userCourse)
+
+      return res.status(200).json({message: 'Успешно'})
+
+    } catch (error) {
+      console.log(error)
+      res.status(400).json({
+        message: 'Неизвестная ошибка при получении теста'
+      })
+    }
   }
 
 }

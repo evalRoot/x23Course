@@ -48,7 +48,7 @@ export default function CourseDetail (props) {
     (async () => {
       try {
         const responseCourse = await request('course', 'POST', {id})
-        let responseUsers
+        let responseUsers = []
 
         if (responseCourse.status === 404) {
           setFlag404(true)

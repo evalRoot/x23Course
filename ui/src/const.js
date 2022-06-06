@@ -4,3 +4,4 @@ export const LEADER_ROLE = 'LEADER'
 export const USER_ROLE = 'USER'
 export const DRAWER_WIDTH = 320
 export const APPBAR_DESKTOP = 92
+export const COURSE_COMPLETE_STATUS = 'Пройден'

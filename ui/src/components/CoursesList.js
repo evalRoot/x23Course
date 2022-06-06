@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import TableComponent from "../components/Table/TableComponent";
 import request from "../helpers/request";
 import PropTypes from 'prop-types';
+import { COURSE_COMPLETE_STATUS } from "../const";
+import moment from "moment";
 
 CoursesList.propTypes = {
   assign: PropTypes.bool,
-  complete: PropTypes.bool,
   all: PropTypes.bool
 };
 
@@ -15,20 +16,75 @@ export default function CoursesList (props) {
   useEffect(() => {
     ( async () => {
       let response
-      if (props.complete) {
-      } else if (props.assign) {
-        response = await request('assignCourses', 'POST', {
-          userId
-        }) 
-        setColumns(response.courses)
+      let columns = {
+        header: [],
+        rows: []
+      }
+      if (props.all) {
+        response = await request('allCourse', 'GET', {})
+
+        columns.header.push({
+          label: 'Название Курса'
+        })
+
+        response.courses.forEach(course => {
+          columns.rows.push({
+            link: {linkTo: `courses/${course.id}`, title: course.name},
+          })
+        });
+        console.log(columns)
+
+        setColumns(columns)
+
       } else {
-        response = await request('allCourse', 'GET', {}) 
-        setColumns(response.courses)
+        response = await request('assignCourses', 'POST', {userId})
+        let filteredCourses = {}
+        if (props.assign) {
+          filteredCourses = response.courses.filter(course => course.status !== COURSE_COMPLETE_STATUS)
+        } else {
+          filteredCourses = response.courses.filter(course => course.status === COURSE_COMPLETE_STATUS)
+        }
+
+        columns.header.push(
+          {
+            label: 'Название Курса'
+          },
+          {
+            label: 'Дата активации'
+          },
+          {
+            label: 'Дата начала'
+          },
+          {
+            label: 'Дата завершения',
+          },
+          {
+            label: 'Баллы'
+          },
+          {
+            label: 'Статус'
+          }
+        )
+
+        filteredCourses.forEach(course => {
+          columns.rows.push(
+            {
+              link: {linkTo: `courses/${course.CourseId}`, title: course.name},
+              createdAt: moment(course.createdAt).format('DD.MM.YYYY HH:mm:ss'),
+              startDate: moment(course.startDate).format('DD.MM.YYYY HH:mm:ss'),
+              endDate: moment(course.endDate).format('DD.MM.YYYY HH:mm:ss'),
+              score: course.score,
+              status: course.status,
+            }
+          )
+        });
+
+        setColumns(columns)
       }
     })()
   }, []) 
 
   return (
-    <TableComponent all={props.all} columns={columns} />
+    <TableComponent header={columns.header} rows={columns.rows} />
   )
 }

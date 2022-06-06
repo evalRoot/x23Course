@@ -36,7 +36,7 @@ function Courses() {
             <CoursesList userId={user.getUser.id} assign/>
           </TabPanel>
           <TabPanel value={value} index={1}>
-            <CoursesList userId={user.getUser.id} complete />
+            <CoursesList userId={user.getUser.id} />
           </TabPanel>
           <TabPanel value={value} index={2}>
             <CoursesList all />

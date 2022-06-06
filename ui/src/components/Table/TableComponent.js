@@ -19,16 +19,6 @@ import SearchIcon from '@mui/icons-material/Search';
 import SearchNotFound from './SearchNotFound';
 import TableHeadComponent from './TableHeadComponent';
 
-let tableHeader = []
-
-const TABLE_HEAD = [
-  { id: '1', label: 'Электронный курс', alignRight: false },
-  { id: '2', label: 'Дата активации', alignRight: false },
-  { id: '3', label: 'Дата начала', alignRight: false },
-  { id: '4', label: 'Дата завершения', alignRight: false },
-  { id: '5', label: 'Балы', alignRight: false },
-  { id: '6', label: 'Статус', alignRight: false }
-];
 
 // ----------------------------------------------------------------------
 
@@ -56,7 +46,7 @@ function applySortFilter(array, comparator, query) {
     return a[1] - b[1];
   });
   if (query) {
-    return filter(array, (_user) => _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    return filter(array, (_user) => _user.value.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   }
   return stabilizedThis.map((el) => el[0]);
 }
@@ -79,12 +69,12 @@ export default function TableComponent(props) {
   const [page, setPage] = useState(0);
 
   const [order, setOrder] = useState('asc');
+  
+  const {header = []} = props
 
-  const {columns = []} = props
+  const {rows = []} = props
 
-  // const [selected, setSelected] = useState([]);
-
-  const [orderBy, setOrderBy] = useState('name');
+  const [orderBy, setOrderBy] = useState('value');
 
   const [filterName, setFilterName] = useState('');
 
@@ -95,22 +85,6 @@ export default function TableComponent(props) {
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
   };
-
-  if (props.all) {
-    tableHeader = TABLE_HEAD.filter(thead => thead.id === '1')
-  } else {
-    tableHeader = TABLE_HEAD
-  }
-
-  // const handleSelectAllClick = (evt) => {
-  //   if (evt.target.checked) {
-  //     const newSelecteds = columns.map((n) => n.name);
-  //     setSelected(newSelecteds);
-  //     return;
-  //   }
-  //   setSelected([]);
-  // };
-
 
   const handleChangePage = (evt, newPage) => {
     setPage(newPage);
@@ -125,11 +99,19 @@ export default function TableComponent(props) {
     setFilterName(evt.target.value);
   };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - columns.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
-  const filteredItems = columns.length !== 0 ? applySortFilter(columns, getComparator(order, orderBy), filterName) : []
+  const filteredItems = rows.length !== 0 ? applySortFilter(rows, getComparator(order, orderBy), filterName) : []
 
   const isDataNotFount = filteredItems.length === 0;
+
+  filteredItems.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
+    
+  })
+
+  filteredItems.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
+    console.log(row)
+  })
 
   return (
     <Container>
@@ -149,31 +131,37 @@ export default function TableComponent(props) {
             <TableHeadComponent
               order={order}
               orderBy={orderBy}
-              headLabel={tableHeader}
-              rowCount={columns.length}
-              // numSelected={selected.length}
+              headLabel={header}
+              rowCount={header.length}
               onRequestSort={handleRequestSort}
-              // onSelectAllClick={handleSelectAllClick}
             />
             <TableBody>
-                {filteredItems.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                  console.log(row)
-                const { id, name, startDate, startEnd, lastVisited, score, status } = row;
-                return (
-                    <TableRow
+                {filteredItems.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
+                  <TableRow
                     hover
-                    key={id}
+                    key={index}
                     tabIndex={-1}
-                    >
-                      <TableCell align='left'><a href={`courses/${id}`}> {name} </a></TableCell>
-                      <TableCell align="left">{startDate}</TableCell>
-                      <TableCell align="left">{startEnd}</TableCell>
-                      <TableCell align="left">{lastVisited}</TableCell>
-                      <TableCell align="left">{score}</TableCell>
-                      <TableCell align="left">{status}</TableCell>
-                    </TableRow>
-                );
-                })}
+                  >
+                    {Object.keys(row).map((key, index) => {
+                      console.log(row[key])
+                      if (row[key].linkTo) {
+                        return (
+                          <TableCell key={index} align='left'>
+                            <a href={row[key].linkTo}>
+                              {row[key].title}
+                            </a>
+                          </TableCell>
+                        )
+                      }
+
+                      return (
+                        <TableCell key={index} align='left'>
+                          {row[key]}
+                        </TableCell>
+                      )
+                    })}
+                  </TableRow>
+                ))}
                 {emptyRows > 0 && (
                 <TableRow style={{ height: 53 * emptyRows }}>
                     <TableCell colSpan={6} />
@@ -185,7 +173,7 @@ export default function TableComponent(props) {
               <TableBody>
                 <TableRow>
                     <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
-                    <SearchNotFound searchQuery={filterName} columns={columns} />
+                    <SearchNotFound searchQuery={filterName} columns={rows} />
                     </TableCell>
                 </TableRow>
               </TableBody>
@@ -197,7 +185,7 @@ export default function TableComponent(props) {
           labelRowsPerPage='Строк на странице'
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
-          count={columns.length}
+          count={rows.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}

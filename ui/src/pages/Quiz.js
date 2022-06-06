@@ -1,22 +1,32 @@
-import { Button, Card, Checkbox, FormControlLabel, Typography } from "@mui/material"
+import { Alert, Button, Card, Checkbox, FormControlLabel, Typography } from "@mui/material"
 import { Container } from "@mui/system";
 import PropTypes from 'prop-types';
-import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import request from "../helpers/request";
 import MobileStepper from '@mui/material/MobileStepper';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
+import moment from "moment";
+import { Context } from "..";
 
 Quiz.propTypes = {
 }
+
+const startDate = moment().format('DD.MM.YYYY HH:mm:ss')
 
 export default function Quiz(props) {
   const { pathname } = useLocation()
   const [questions, setQuestions] = useState([])
   const courseId = pathname.split('/')[pathname.split('/').length - 2]
+  const {user} = useContext(Context)
   const [activeStep, setActiveStep] = useState(0);
+  const [score, setScore] = useState(0)
+  const [isPassed, setPassed] = useState(false)
+  const [isFinish, setFinish] = useState(false)
   const maxSteps = questions.length;
+  
+  const navigate = useNavigate()
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -32,8 +42,32 @@ export default function Quiz(props) {
     setQuestions(questionsCopy)
   }
 
-  const handleFinishTest = () => {
-    console.log(questions)
+  const handleFinishTest = async () => {
+    let userCorrectAnswers = 0
+    let response = {}
+    for (let i = 0; i < questions.length; i++) {
+      if (questions[i].answerOptions.every(option => option.isCorrect === option.userAnswer)) {
+        userCorrectAnswers++
+      }
+    }
+
+    const score = userCorrectAnswers / questions.length * 100
+    setScore(score)
+
+    if (score > 70) {
+      setPassed(true)
+    }
+
+    response = await request('finishQuiz', 'POST', {
+      courseId: Number(courseId),
+      userId: user.getUser.id,
+      startDate: startDate,
+      endDate: moment().format('DD.MM.YYYY HH:mm:ss'),
+      score,
+      status: score > 70 ? 'Пройден' : 'Тест Не Пройден'
+    })
+
+    setFinish(true)
   }
 
   useEffect(() => {
@@ -58,55 +92,74 @@ export default function Quiz(props) {
   return (
     <Container>
       <Typography variant="h6" style={{marginBottom: 15}}>Тест:</Typography>
-      <Card style={{ padding: 16 }}>
-        {questions.length !== 0 &&
-          <>
-            <Typography>{questions[activeStep].name}</Typography>
-            <ul style={{ padding: 16 }}>
-              {questions[activeStep].answerOptions.map((option, index) => (
-                <li key={index}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox color="primary" onClick={(evt) => handleUserAnswer(evt.target.checked, index)} checked={option.userAnswer}/>
-                    }
-                    label={`${option.answerText}`} />
-                </li> ))
-              }
-            </ul>
+      {isFinish ? (
+        <>
+          <Card style={{ padding: 16 }}>
+            {isPassed ? (
+              <Alert severity="success">Баллов набранно {score}. Тест Пройден! Теперь можешь посмотреть токийский гуль</Alert>
+            ) : (
+              <Alert severity="error">Баллов набранно {score}. Тест НЕ ПРОЙДЕН! Давай заново</Alert>
+            )}
+          </Card>
+          <Button style={{marginTop: 16}}  onClick={() => {
+            navigate('/courses')
+          }}>
+            К курсам
+          </Button>
         </>
-        }
-      </Card>
-      <MobileStepper
-        variant="text"
-        steps={maxSteps}
-        position="static"
-        activeStep={activeStep}
-        nextButton={
+      ) : (
+        <>
+          <Card style={{ padding: 16 }}>
+            {questions.length !== 0 &&
+              <>
+                <Typography>{questions[activeStep].name}</Typography>
+                <ul style={{ padding: 16 }}>
+                  {questions[activeStep].answerOptions.map((option, index) => (
+                    <li key={index}>
+                      <FormControlLabel
+                        control={
+                          <Checkbox color="primary" onClick={(evt) => handleUserAnswer(evt.target.checked, index)} checked={option.userAnswer}/>
+                        }
+                        label={`${option.answerText}`} />
+                    </li> ))
+                  }
+                </ul>
+            </>
+            }
+          </Card>
+          <MobileStepper
+            variant="text"
+            steps={maxSteps}
+            position="static"
+            activeStep={activeStep}
+            nextButton={
+              <Button
+                size="small"
+                onClick={handleNext}
+                disabled={activeStep === maxSteps - 1}
+              >
+                Следующий Вопрос
+                <KeyboardArrowRight />
+              </Button>
+            }
+            backButton={
+              <Button size="small" onClick={handleBack} disabled={activeStep === 0}>
+                <KeyboardArrowLeft />
+                Предыдущий Вопрос
+              </Button>
+            }
+          />
           <Button
-            size="small"
-            onClick={handleNext}
-            disabled={activeStep === maxSteps - 1}
-          >
-            Следующий Вопрос
-            <KeyboardArrowRight />
+            style={{
+              marginTop: 15
+            }}
+            onClick={handleFinishTest}
+            variant="contained"
+            color="primary">
+            Завершить тест
           </Button>
-        }
-        backButton={
-          <Button size="small" onClick={handleBack} disabled={activeStep === 0}>
-            <KeyboardArrowLeft />
-            Предыдущий Вопрос
-          </Button>
-        }
-      />
-      <Button
-        style={{
-          marginTop: 15
-        }}
-        onClick={handleFinishTest}
-        variant="contained"
-        color="primary">
-        Завершить тест
-      </Button>
+        </>
+      )}
     </Container>
   )
 }

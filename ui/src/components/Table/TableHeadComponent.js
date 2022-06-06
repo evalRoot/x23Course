@@ -29,11 +29,8 @@ TableHeadComponent.propTypes = {
 export default function TableHeadComponent({
   order,
   orderBy,
-  rowCount,
   headLabel,
-  numSelected,
   onRequestSort,
-  onSelectAllClick,
 }) {
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
