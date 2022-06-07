@@ -9,13 +9,14 @@ import { observer } from 'mobx-react-lite';
 import PieChartIcon from '@mui/icons-material/PieChart';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import AddBoxIcon from '@mui/icons-material/AddBox';
-
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import InsertInvitationIcon from '@mui/icons-material/InsertInvitation';
 // ----------------------------------------------------------------------
 
 const RootStyle = styled('div')(({ theme }) => ({
-    flexShrink: 0,
-    maxWidth: DRAWER_WIDTH,
-    zIndex: 998
+  flexShrink: 0,
+  maxWidth: DRAWER_WIDTH,
+  zIndex: 998
 }));
 
 // ----------------------------------------------------------------------
@@ -55,7 +56,20 @@ export default observer(function Sidebar() {
               path: '/courses',
               icon: <AssignmentIcon fontSize='medium'/>,
               permission: allAccess
-            }
+            },
+            {
+              title: 'Создание Мероприятия',
+              path: '/create-meeting',
+              icon: <InsertInvitationIcon fontSize='medium'/>,
+              permission: user.getUser.role === ADMIN_ROLE
+            },
+            {
+              title: 'Мероприятия',
+              path: '/meeting',
+              icon: <CalendarMonthIcon fontSize='medium'/>,
+              permission: allAccess
+            },
+            
           ]} />
       </Drawer>
     </RootStyle>
