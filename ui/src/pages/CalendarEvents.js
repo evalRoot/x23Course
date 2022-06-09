@@ -17,7 +17,8 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 400,
+  width: 800,
+  height: 400,
   backgroundColor: '#fff',
   border: '2px solid #000',
   boxShadow: 24,
@@ -30,6 +31,9 @@ export default class CalendarEvents extends React.Component {
     this.state = {
       modalShow: false,
       eventName: '',
+      currentDate: moment().format('YYYY-MM-DDTHH:mm'),
+      editEvent: false,
+      currentEvent: ''
     }
   }
 
@@ -41,33 +45,75 @@ export default class CalendarEvents extends React.Component {
 
   closeModal = () => {
     this.setState({
-      modalShow: false
+      modalShow: false,
+      eventName: '',
+      currentDate: moment().format('YYYY-MM-DDTHH:mm'),
+      editEvent: false
     })
   }
 
   onEventAdded = (evt) => {
     evt.preventDefault()
     const api = this.calendar.getApi();
-    const date = new Date(this.dateInput.value + 'T00:00:00')
+    const date = new Date(this.dateInput.value)
     if (!isNaN(date.valueOf())) {
       api.addEvent({
         title: this.state.eventName,
         start: date,
-        allDay: true
+        allDay: false,
+        editable: true
       });
       this.closeModal()
     } else {
       alert('Дата невалидна');
     }
-  };
+  }
+
+  onEventEdit = (evt) => {
+    evt.preventDefault()
+    const date = new Date(this.dateInput.value)
+    console.log(date)
+    if (!isNaN(date.valueOf())) {
+      this.state.currentEvent.setProp('title', this.state.eventName)
+      this.state.currentEvent.setDates(date)
+      this.closeModal()
+      this.setState({
+        currentEvent: ''
+      })
+    } else {
+      alert('Дата невалидна');
+    }
+  }
+
+
+  onEventClick = (info) => {
+    this.setState({
+      eventName: info.event.title,
+      currentDate: moment(info.event.start).format('YYYY-MM-DDTHH:mm'),
+      editEvent: true,
+      currentEvent: info.event
+    })
+    this.showModal()
+  }
+
+  
+  onEventRemove = () => {
+    this.state.currentEvent.remove()
+    this.closeModal()
+    this.setState({
+      currentEvent: ''
+    })
+  }
+
 
   render () {
     const {
-      modalShow
+      modalShow,
+      eventName,
+      currentDate,
+      editEvent
     } = this.state
-
-    const minDate = moment().format('YYYY-MM-DD')
-
+    const minDate = moment().format('YYYY-MM-DDTHH:mm')
     return (
       <Container>
         <Button onClick={this.showModal} style={{
@@ -79,6 +125,13 @@ export default class CalendarEvents extends React.Component {
           ref={node => this.calendar = node}
           locale='ru'
           locales={[ruLocale]}
+          eventTimeFormat={{
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+          }}
+          eventClick={this.onEventClick}
           plugins={[ dayGridPlugin ]}
           initialView="dayGridMonth"
         />
@@ -87,22 +140,25 @@ export default class CalendarEvents extends React.Component {
         open={modalShow}
         onClose={this.closeModal}
         >
-          <Box component="form" onSubmit={this.onEventAdded} style={{ ...style }}>
+          <Box component="form" onSubmit={editEvent ? this.onEventEdit : this.onEventAdded} style={{ ...style }}>
             <h2 id="child-modal-title">Добавить Мероприятие</h2>
             <label>
               <p style={{marginTop: 10, marginBottom: 10}}>
                 Выбрать Дату
               </p>
-              <input ref={node => this.dateInput = node} type='date' min={minDate} defaultValue={minDate} />
+              <input ref={node => this.dateInput = node} type='datetime-local' min={minDate} defaultValue={currentDate} />
             </label>
 
             <TextField
               margin="normal"
+              multiline
+              rows={6}
               onChange={(evt) => {
                 this.setState({
                   eventName: evt.target.value
                 })
               }}
+              value={eventName}
               required
               fullWidth
               id="name"
@@ -113,7 +169,12 @@ export default class CalendarEvents extends React.Component {
 
             <div style={{ display: 'flex' }}>
               <Button style={{marginTop: 10, marginRight: 10}}  onClick={this.closeModal}>Закрыть</Button>
-              <Button variant='contained' type='submit' style={{marginTop: 10}}>Добавить</Button>
+              <Button variant='contained' type='submit' style={{marginTop: 10, marginRight: 10}}>{`${editEvent ? 'Изменить' : 'Добавить'}`}</Button>
+              {editEvent &&
+                <Button size="small" onClick={this.onEventRemove} style={{marginTop: 10}} variant="contained" color="error">
+                  Удалить
+                </Button>
+              }
             </div>
           </Box>
         </Modal>
