@@ -30,6 +30,7 @@ export default function CoursesList (props) {
         response.courses.forEach(course => {
           columns.rows.push({
             link: {linkTo: `courses/${course.id}`, title: course.name},
+            sortBy: course.name
           })
         });
         console.log(columns)
@@ -75,6 +76,7 @@ export default function CoursesList (props) {
               endDate: moment(course.endDate).format('DD.MM.YYYY HH:mm:ss'),
               score: course.score,
               status: course.status,
+              sortBy: course.name
             }
           )
         });

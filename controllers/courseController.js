@@ -12,7 +12,7 @@ class CourseController {
           name: course.name,
           modules: JSON.stringify(course.modules)
         })
-        await Test.create({
+        await courseQuiz.create({
           name: `Тест Курса ${course.name}`,
           questions: JSON.stringify(questions),
           CourseId: courseCurr.id

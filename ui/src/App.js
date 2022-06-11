@@ -38,7 +38,7 @@ export default observer(function App() {
       <Typography style={{
         color: '#1976d2',
         marginTop: 20
-      }} variant="h6">Loading...</Typography>
+      }} variant="h6">Загрузка...</Typography>
     </Box>
     )
   }

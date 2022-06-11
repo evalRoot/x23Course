@@ -69,7 +69,7 @@ const Grade = sequelize.define('Grade', {
   }
 })
 
-const courseQuiz = sequelize.define('Test' , {
+const courseQuiz = sequelize.define('Quiz' , {
   name: { 
     type: DataTypes.STRING 
   },
@@ -77,6 +77,20 @@ const courseQuiz = sequelize.define('Test' , {
     type: DataTypes.TEXT
   }
 })
+
+const Event = sequelize.define('Event', {
+  event: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  }
+})
+
+const UserEvent = sequelize.define('UserEventt', {
+  id: {
+    type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true
+  }
+})
+
 
 //Associations
 User.hasMany(User)
@@ -91,6 +105,9 @@ Course.belongsToMany(User, {through: UserCourse })
 Course.hasOne(courseQuiz)
 courseQuiz.belongsTo(Course)
 
+
+Event.belongsToMany(User, { through: UserEvent })
+User.belongsToMany(Event, { through: UserEvent })
 
 module.exports = {
     User,

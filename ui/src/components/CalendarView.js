@@ -2,8 +2,22 @@ import React from 'react'
 import FullCalendar from '@fullcalendar/react' // must go before plugins
 import dayGridPlugin from '@fullcalendar/daygrid' // a plugin!
 import { Container } from '@mui/system'
-import { Box, Button, Modal, TextField } from '@mui/material'
+import { Box, Button, FilledInput, Input, InputBase, InputLabel, MenuItem, Modal, OutlinedInput, Select, TextField } from '@mui/material'
 import moment from 'moment'
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import "moment/locale/ru";
+
+moment.locale("ru");
+
+const educationForm = [
+  {
+    0 : 'Онлайн',
+    1: 'Оффлайн'
+  }
+]
+
 const ruLocale = {
   code: "ru",
   buttonText: {
@@ -18,7 +32,8 @@ const style = {
   left: '50%',
   transform: 'translate(-50%, -50%)',
   width: 800,
-  height: 400,
+  height: 650,
+  overflowY: 'auto',
   backgroundColor: '#fff',
   border: '2px solid #000',
   boxShadow: 24,
@@ -31,9 +46,12 @@ export default class CalendarView extends React.Component {
     this.state = {
       modalShow: false,
       eventName: '',
-      currentDate: moment().format('YYYY-MM-DDTHH:mm'),
+      currentDateStart: moment().format('YYYY-MM-DD HH:mm'),
+      currentDateEnd: moment().format('YYYY-MM-DD HH:mm'),
       editEvent: false,
-      currentEvent: ''
+      currentEvent: '',
+      onErrorDatePicker: '',
+      educationFormValue: 0
     }
   }
 
@@ -47,7 +65,8 @@ export default class CalendarView extends React.Component {
     this.setState({
       modalShow: false,
       eventName: '',
-      currentDate: moment().format('YYYY-MM-DDTHH:mm'),
+      currentDateStart: moment().format('YYYY-MM-DD HH:mm'),
+      currentDateEnd:  moment().format('YYYY-MM-DD HH:mm'),
       editEvent: false
     })
   }
@@ -55,11 +74,13 @@ export default class CalendarView extends React.Component {
   onEventAdded = (evt) => {
     evt.preventDefault()
     const api = this.calendar.getApi();
-    const date = new Date(this.dateInput.value)
-    if (!isNaN(date.valueOf())) {
+    const startDate = new Date(this.state.currentDateStart)
+    const endDate = new Date(this.state.currentDateEnd)
+    if (!isNaN(startDate.valueOf()) && !isNaN(endDate.valueOf())) {
       api.addEvent({
         title: this.state.eventName,
-        start: date,
+        start: startDate,
+        end: endDate,
         allDay: false,
         editable: true
       });
@@ -71,7 +92,7 @@ export default class CalendarView extends React.Component {
 
   onEventEdit = (evt) => {
     evt.preventDefault()
-    const date = new Date(this.dateInput.value)
+    const date = new Date(this.state.currentDateStart)
     if (!isNaN(date.valueOf())) {
       this.state.currentEvent.setProp('title', this.state.eventName)
       this.state.currentEvent.setDates(date)
@@ -88,7 +109,8 @@ export default class CalendarView extends React.Component {
   onEventClick = (info) => {
     this.setState({
       eventName: info.event.title,
-      currentDate: moment(info.event.start).format('YYYY-MM-DDTHH:mm'),
+      currentDateStart: moment(info.event.start).format('YYYY-MM-DD HH:mm'),
+      currentDateEnd: moment(info.event.end).format('YYYY-MM-DD HH:mm'),
       editEvent: true,
       currentEvent: info.event
     })
@@ -114,10 +136,11 @@ export default class CalendarView extends React.Component {
     const {
       modalShow,
       eventName,
-      currentDate,
+      currentDateStart,
+      currentDateEnd,
       editEvent
     } = this.state
-    const minDate = moment().format('YYYY-MM-DDTHH:mm')
+    const minDate = moment().format('YYYY-MM-DD HH:mm')
     return (
       <Container>
         <Button onClick={this.showModal} style={{
@@ -149,18 +172,77 @@ export default class CalendarView extends React.Component {
         onClose={this.closeModal}
         >
           <Box component="form" onSubmit={editEvent ? this.onEventEdit : this.onEventAdded} style={{ ...style }}>
-            <h2 id="child-modal-title">Добавить Мероприятие</h2>
-            <label>
-              <p style={{marginTop: 10, marginBottom: 10}}>
-                Выбрать Дату
-              </p>
-              <input ref={node => this.dateInput = node} type='datetime-local' min={minDate} defaultValue={currentDate} />
-            </label>
+            <h2 id="child-modal-title">{`${editEvent ? 'Изменить Мероприятие' : 'Добавить Мероприятие'}`}</h2>
+            <div style={{marginTop: 30, marginBottom: 10, display: 'flex', alignItems: 'center'}}>
+              <LocalizationProvider locale='ru' dateAdapter={AdapterMoment}>
+                <DateTimePicker
+                  onError={(reason, value) => {
+                    this.setState({
+                      onErrorDatePicker: ''
+                    })
 
+                    if (reason === 'minTime' || reason === 'minDate') {
+                      this.setState({
+                        onErrorDatePicker: `Минимальная дата ${minDate}`
+                      })
+                    }
+
+                    if (reason === 'invalidDate') {
+                      this.setState({
+                        onErrorDatePicker: `Неверный формат для даты`
+                      })
+                    }
+                  }}
+                  minDateTime={moment(minDate)}
+                  renderInput={(props) => <TextField {
+                    ...props
+                  } inputProps = {{...props.inputProps, placeholder: 'дд.мм.гггг чч:мм'}} />}
+                  label="Выбрать Дату Начала"
+                  value={currentDateStart}
+                  onChange={(newValue) => {
+                    this.setState({
+                      currentDateStart: moment(newValue).format('YYYY-MM-DD HH:mm')
+                    })
+                  }}
+                />
+              </LocalizationProvider>
+              <span style={{display: 'inline-block', marginLeft: 10, marginRight: 10}}>-</span>
+              <LocalizationProvider locale='ru' dateAdapter={AdapterMoment}>
+                <DateTimePicker
+                  onError={(reason, value) => {
+                    this.setState({
+                      onErrorDatePicker: ''
+                    })
+
+                    if (reason === 'minTime' || reason === 'minDate') {
+                      this.setState({
+                        onErrorDatePicker: `Минимальная дата ${this.state.currentDateStart}`
+                      })
+                    }
+
+                    if (reason === 'invalidDate') {
+                      this.setState({
+                        onErrorDatePicker: `Неверный формат для даты`
+                      })
+                    }
+                  }}
+                  minDateTime={moment(this.state.currentDateStart)}
+                  renderInput={(props) => <TextField {
+                    ...props
+                  } inputProps = {{...props.inputProps, placeholder: 'дд.мм.гггг чч:мм'}} />}
+                  label="Выбрать Дату Завершения"
+                  value={currentDateEnd}
+                  onChange={(newValue) => {
+                    this.setState({
+                      currentDateEnd: moment(newValue).format('YYYY-MM-DD HH:mm')
+                    })
+                  }}
+                />
+              </LocalizationProvider>
+            </div>
+            <p style={{color: '#FF4842'}}>{this.state.onErrorDatePicker}</p>
             <TextField
               margin="normal"
-              multiline
-              rows={6}
               onChange={(evt) => {
                 this.setState({
                   eventName: evt.target.value
@@ -170,12 +252,89 @@ export default class CalendarView extends React.Component {
               required
               fullWidth
               id="name"
-              label="Название"
+              label="Тема"
               name="name"
               autoFocus
             />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              multiline
+              rows={2}
+              id="desription"
+              label="Описание"
+              name="description"
+              autoFocus
+            />
 
-            <div style={{ display: 'flex' }}>
+            <InputLabel style={{ marginTop: 16, marginBottom: 5 }}>
+              Свободных мест
+            </InputLabel>
+            <FilledInput type='number'></FilledInput>
+            <InputLabel style={{ marginTop: 16, marginBottom: 5 }}>Формат обучения</InputLabel>
+            <Select
+              displayEmpty
+              input={<OutlinedInput />}
+              value={this.state.educationFormValue}
+              onChange={(evt) => {
+                this.setState({
+                  educationFormValue: evt.target.value
+                })
+              }}
+              inputProps={{ 'aria-label': 'Without label' }}
+            >
+              {Object.values(educationForm).map((el, index) => (
+                <MenuItem value={index}>
+                  {el}
+                </MenuItem>
+              ))}
+            </Select>
+            <InputLabel style={{ marginTop: 16, marginBottom: 5 }}>Вид обучения</InputLabel>
+            <Select
+              displayEmpty
+              input={<OutlinedInput />}
+              inputProps={{ 'aria-label': 'Without label' }}
+            >
+              <MenuItem>
+                Функциональные программы
+              </MenuItem>
+              <MenuItem>
+                Развитие профессиональных навыков 
+              </MenuItem>
+              <MenuItem>
+                Развитие управленческих навыков
+              </MenuItem>
+              <MenuItem>
+                Другие Soft Skills
+              </MenuItem>
+              <MenuItem>
+                *Прочее
+              </MenuItem>
+            </Select>
+            <InputLabel style={{ marginTop: 16, marginBottom: 5 }}>Проекты</InputLabel>
+            <Select
+              displayEmpty
+              input={<OutlinedInput />}
+              inputProps={{ 'aria-label': 'Without label' }}
+            >
+              <MenuItem>
+                Индивидуальная потребность дирекции
+              </MenuItem>
+              <MenuItem>
+                Мероприятия для ТОП-команды 
+              </MenuItem>
+              <MenuItem>
+                Особая СРЕДА, Потребность дирекции
+              </MenuItem>
+              <MenuItem>
+                Адаптация
+              </MenuItem>
+              <MenuItem>
+                Управленческая программа для СЕО-3
+              </MenuItem>
+            </Select>
+            <div style={{ display: 'flex', marginTop: 16 }}>
               <Button style={{marginTop: 10, marginRight: 10}}  onClick={this.closeModal}>Закрыть</Button>
               <Button variant='contained' type='submit' style={{marginTop: 10, marginRight: 10}}>{`${editEvent ? 'Изменить' : 'Добавить'}`}</Button>
               {editEvent &&
