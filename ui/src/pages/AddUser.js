@@ -148,6 +148,7 @@ export default function AddUser() {
       setLeaderFlag(false)
       setCheckedUsers([])
       getUsers()
+      setGrade('')
     } catch (error) {
       console.log(error)
     }

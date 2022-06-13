@@ -72,8 +72,8 @@ export default function CoursesList (props) {
             {
               link: {linkTo: `courses/${course.CourseId}`, title: course.name},
               createdAt: moment(course.createdAt).format('DD.MM.YYYY HH:mm:ss'),
-              startDate: moment(course.startDate).format('DD.MM.YYYY HH:mm:ss'),
-              endDate: moment(course.endDate).format('DD.MM.YYYY HH:mm:ss'),
+              startDate: course.startDate ? moment(course.startDate).format('DD.MM.YYYY HH:mm:ss'): '',
+              endDate: course.endDate ? moment(course.endDate).format('DD.MM.YYYY HH:mm:ss'): '',
               score: course.score,
               status: course.status,
               sortBy: course.name

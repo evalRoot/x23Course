@@ -13,7 +13,7 @@ import { Context } from "..";
 Quiz.propTypes = {
 }
 
-const startDate = moment().format('DD.MM.YYYY HH:mm:ss')
+const startDate = moment()
 
 export default function Quiz(props) {
   const { pathname } = useLocation()
@@ -62,7 +62,7 @@ export default function Quiz(props) {
       courseId: Number(courseId),
       userId: user.getUser.id,
       startDate: startDate,
-      endDate: moment().format('DD.MM.YYYY HH:mm:ss'),
+      endDate: moment(),
       score,
       status: score > 70 ? 'Пройден' : 'Тест Не Пройден'
     })
