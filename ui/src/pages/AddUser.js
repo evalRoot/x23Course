@@ -105,7 +105,7 @@ export default function AddUser() {
     try {
       const data = new FormData(evt.currentTarget)
 
-      if (isSetLeader && !leaderId) {
+      if (!isLeader && !leaderId) {
         notifySet({
           errorIsOpen: true,
           successIsOpen: false,
@@ -146,6 +146,7 @@ export default function AddUser() {
       evt.target.reset()
       setIsLeader(false)
       setLeaderFlag(false)
+      setCheckedUsers([])
       getUsers()
     } catch (error) {
       console.log(error)

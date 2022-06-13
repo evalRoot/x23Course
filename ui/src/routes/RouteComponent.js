@@ -21,6 +21,7 @@ import ModuleDetail from "../pages/ModuleDetail";
 import CourseUpdate from "../pages/CourseUpdate";
 import Quiz from "../pages/Quiz";
 import CalendarEvents from "../pages/CalendarEvents";
+import EventsView from "../pages/EventsView";
 
 
 export default observer(function RouteComponent(props) {
@@ -96,6 +97,11 @@ export default observer(function RouteComponent(props) {
             <Route path='/create-meeting' element={
               <RequireAuth>
                 <CalendarEvents/>
+              </RequireAuth>
+            } />
+            <Route path='/meeting' element={
+              <RequireAuth>
+                <EventsView/>
               </RequireAuth>
             } />
             <Route path="/login" element={viewLogin()} />

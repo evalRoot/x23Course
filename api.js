@@ -2,6 +2,7 @@ const Router = require('express')
 const router = new Router()
 const userController = require('./controllers/userController')
 const courseController = require('./controllers/courseController')
+const eventController = require('./controllers/eventController')
 const checkRoleMiddleware = require('./middleware/checkRoleMiddleware')
 
 router.post('/registration', checkRoleMiddleware, userController.registration)
@@ -18,5 +19,10 @@ router.post('/assignUsers', userController.usersFromLeader)
 router.get('/gradesList', userController.gradesList)
 router.post('/courseQuiz', courseController.courseQuiz)
 router.post('/finishQuiz', courseController.finishQuiz)
+router.post('/addEvent', eventController.create)
+router.post('/editEvent', eventController.edit)
+router.get('/events', eventController.allEvents)
+router.post('/deleteEvent', eventController.delete)
+
 
 module.exports = router

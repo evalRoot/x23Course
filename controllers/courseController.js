@@ -168,8 +168,6 @@ class CourseController {
         status
       })
 
-      console.log(userCourse)
-
       return res.status(200).json({message: 'Успешно'})
 
     } catch (error) {

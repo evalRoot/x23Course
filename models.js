@@ -79,8 +79,40 @@ const courseQuiz = sequelize.define('Quiz' , {
 })
 
 const Event = sequelize.define('Event', {
-  event: {
+  title: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  start: {
+    type: DataTypes.DATE,
+    allowNull: false
+  },
+  end: {
+    type: DataTypes.DATE,
+    allowNull: false
+  },
+  description: {
     type: DataTypes.TEXT,
+    allowNull: false
+  },
+  educationForm: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  educationType: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  projects: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  vacancies: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  freeVacancies: {
+    type: DataTypes.INTEGER,
     allowNull: false
   }
 })
@@ -114,6 +146,8 @@ module.exports = {
     Course,
     UserCourse,
     Grade,
-    courseQuiz
+    courseQuiz,
+    Event,
+    UserEvent
 }
 
