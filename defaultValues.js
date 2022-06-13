@@ -1,5 +1,4 @@
 const { Grade } = require('./models')
-const sequelize = require('./db')
 
 const gradeDefaultValues = [
   'Уровень 1 (Подбор)', 
@@ -12,8 +11,6 @@ const gradeDefaultValues = [
 
 const createDefaultValues = async () => {
   try {
-    await sequelize.authenticate()
-    await sequelize.sync()
     let candidate = await Grade.findAll()
   
     if (candidate.length === 0) {

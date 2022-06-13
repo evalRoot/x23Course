@@ -16,13 +16,14 @@ app.get('/api/test', (req, res) => {
   return res.status(200).json({message: 'test'})
 })
 
-createDefaultValues()
-
 const start = async () => {
   try {
       await sequelize.authenticate()
       await sequelize.sync()
-      app.listen(port, () => console.log(`Server started on port ${port}`))
+      app.listen(port, async () => {
+        await createDefaultValues()
+        console.log(`Server started on port ${port}`)
+      })
   } catch (error) {
       console.log('---')
       console.log(error, 'start server error')

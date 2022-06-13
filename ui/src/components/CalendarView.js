@@ -70,7 +70,8 @@ export default class CalendarView extends React.Component {
       educationFormValue: 0,
       educationTypeValue: 0,
       projectValue: 0,
-      vacancies: Number(1)
+      vacancies: Number(1),
+      place: ''
     }
   }
 
@@ -92,7 +93,7 @@ export default class CalendarView extends React.Component {
       educationFormValue: 0,
       educationType: 0,
       projectValue: 0,
-      vacancies: Number(1)
+      vacancies: Number(0)
     })
   }
 
@@ -116,7 +117,8 @@ export default class CalendarView extends React.Component {
         vacancies,
         currentEvent,
         currentDateStart,
-        currentDateEnd
+        currentDateEnd,
+        place
       } = this.state
       const startDate = new Date(currentDateStart)
       const endDate = new Date(currentDateEnd)
@@ -133,6 +135,7 @@ export default class CalendarView extends React.Component {
           educationType: educationType[educationTypeValue],
           projects: projects[projectValue],
           vacancies: Number(vacancies),
+          place
         }
   
         if (this.state.editEvent) {
@@ -337,10 +340,6 @@ export default class CalendarView extends React.Component {
               name="description"
               autoFocus
             />
-            <InputLabel style={{ marginTop: 16, marginBottom: 5 }}>
-              Свободных мест
-            </InputLabel>
-            <FilledInput value={this.state.vacancies} onChange={(evt) => this.setState({ vacancies: evt.target.value })} type='number'></FilledInput>
             <InputLabel style={{ marginTop: 16, marginBottom: 5 }}>Формат обучения</InputLabel>
             <Select
               displayEmpty
@@ -359,6 +358,32 @@ export default class CalendarView extends React.Component {
                 </MenuItem>
               ))}
             </Select>
+            { this.state.educationFormValue === 1 && 
+              <TextField
+                margin="normal"
+                required
+                onChange={(evt) => {
+                  this.setState({
+                    place: evt.target.value
+                  })
+                }}
+                value={this.state.place}
+                fullWidth
+                id="place"
+                label="Место проведения"
+                name="place"
+                autoFocus
+              />
+            }
+            <InputLabel style={{ marginTop: 16, marginBottom: 5 }}>
+              Свободных мест
+            </InputLabel>
+            <FilledInput 
+              style={{ width: 280 }}
+              disabled={this.state.educationFormValue === 0}
+              placeholder={`${this.state.educationFormValue === 0 ? 'Количество мест не ограничено' : 'Введите число мест'}`}
+              onChange={(evt) => this.setState({ vacancies: evt.target.value })} 
+              type='number' />
             <InputLabel style={{ marginTop: 16, marginBottom: 5 }}>Вид обучения</InputLabel>
             <Select
               displayEmpty
