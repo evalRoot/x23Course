@@ -17,6 +17,12 @@ const educationForm = {
     1: 'Оффлайн'
 }
 
+const educationFormToValue = {
+  'Онлайн' : 0,
+  'Оффлайн': 1
+}
+
+
 const educationType = {
   0 : 'Функциональные программы',
   1 : 'Развитие профессиональных навыков',
@@ -25,12 +31,28 @@ const educationType = {
   4 : '*Прочее'
 }
 
-const projects ={
+const educationTypeToValue = {
+  'Функциональные программы' : 0,
+  'Развитие профессиональных навыков' : 1,
+  'Развитие управленческих навыков' : 2,
+  'Другие Soft Skills' : 3,
+  '*Прочее': 4
+}
+
+const projects = {
   0 : 'Индивидуальная потребность дирекции',
   1 : 'Мероприятия для ТОП-команды',
   2 : 'Особая СРЕДА, Потребность дирекции',
   3 : 'Адаптация',
   4 : 'Управленческая программа для СЕО-3'
+}
+
+const projectsToValue = {
+  'Индивидуальная потребность дирекции': 0,
+  'Мероприятия для ТОП-команды': 1,
+  'Особая СРЕДА, Потребность дирекции': 2,
+  'Адаптация': 3,
+  'Управленческая программа для СЕО-3': 4
 }
 
 
@@ -169,6 +191,8 @@ export default class CalendarView extends React.Component {
   }
 
   onEventClick = (info) => {
+    console.log(info.event.extendedProps.vacancies)
+
     this.setState({
       eventName: info.event.title,
       description: info.event.extendedProps.description,
@@ -176,10 +200,11 @@ export default class CalendarView extends React.Component {
       currentDateEnd: info.event.end,
       editEvent: true,
       currentEvent: info.event,
-      educationForm: info.event.extendedProps.educationForm,
-      educationType: info.event.extendedProps.educationType,
-      projects: info.event.extendedProps.projects,
-      vacancies: info.event.extendedProps.vacancies
+      educationFormValue: educationFormToValue[info.event.extendedProps.educationForm],
+      educationType: educationTypeToValue[info.event.extendedProps.educationType],
+      projects: projectsToValue[info.event.extendedProps.projects],
+      vacancies: Number(info.event.extendedProps.vacancies),
+      place: info.event.extendedProps.place
     })
     this.showModal()
   }
@@ -323,23 +348,6 @@ export default class CalendarView extends React.Component {
               name="name"
               autoFocus
             />
-            <TextField
-              margin="normal"
-              required
-              onChange={(evt) => {
-                this.setState({
-                  description: evt.target.value
-                })
-              }}
-              value={this.state.description}
-              fullWidth
-              multiline
-              rows={2}
-              id="desription"
-              label="Описание"
-              name="description"
-              autoFocus
-            />
             <InputLabel style={{ marginTop: 16, marginBottom: 5 }}>Формат обучения</InputLabel>
             <Select
               displayEmpty
@@ -380,6 +388,7 @@ export default class CalendarView extends React.Component {
             </InputLabel>
             <FilledInput 
               style={{ width: 280 }}
+              value={this.state.vacancies}
               disabled={this.state.educationFormValue === 0}
               placeholder={`${this.state.educationFormValue === 0 ? 'Количество мест не ограничено' : 'Введите число мест'}`}
               onChange={(evt) => this.setState({ vacancies: evt.target.value })} 
@@ -391,7 +400,7 @@ export default class CalendarView extends React.Component {
               input={<OutlinedInput />}
               onChange={(evt) => {
                 this.setState({
-                  educationType: evt.target.value
+                  educationTypeValue: evt.target.value
                 })
               }}
               inputProps={{ 'aria-label': 'Without label' }}
@@ -406,6 +415,11 @@ export default class CalendarView extends React.Component {
             <Select
               displayEmpty
               value={this.state.projectValue}
+              onChange={(evt) => {
+                this.setState({
+                  projectValue: evt.target.value
+                })
+              }}
               input={<OutlinedInput />}
               inputProps={{ 'aria-label': 'Without label' }}
             >
@@ -415,6 +429,23 @@ export default class CalendarView extends React.Component {
                 </MenuItem>
               ))}
             </Select>
+            <TextField
+              margin="normal"
+              required
+              onChange={(evt) => {
+                this.setState({
+                  description: evt.target.value
+                })
+              }}
+              value={this.state.description}
+              fullWidth
+              multiline
+              rows={2}
+              id="desription"
+              label="Описание"
+              name="description"
+              autoFocus
+            />
             <div style={{ display: 'flex', marginTop: 16 }}>
               <Button style={{marginTop: 10, marginRight: 10}}  onClick={this.closeModal}>Закрыть</Button>
               <Button variant='contained' type='submit' style={{marginTop: 10, marginRight: 10}}>{`${editEvent ? 'Изменить' : 'Добавить'}`}</Button>

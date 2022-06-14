@@ -12,7 +12,8 @@ class EventController {
         educationType,
         projects,
         event,
-        vacancies
+        vacancies,
+        place
       } = req.body
 
       const eventInstance = await Event.create({
@@ -25,7 +26,8 @@ class EventController {
         projects,
         event,
         vacancies,
-        freeVacancies: vacancies
+        freeVacancies: vacancies,
+        place
       })
 
       return res.status(200).json({
@@ -54,7 +56,8 @@ class EventController {
       projects,
       event,
       vacancies,
-      eventId
+      eventId,
+      place
     } = req.body
 
     await Event.update({
@@ -67,7 +70,8 @@ class EventController {
       projects,
       event,
       vacancies,
-      freeVacancies: vacancies
+      freeVacancies: vacancies,
+      place
     }, {
       where: {
         id: eventId

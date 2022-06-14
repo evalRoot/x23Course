@@ -114,6 +114,9 @@ const Event = sequelize.define('Event', {
   freeVacancies: {
     type: DataTypes.INTEGER,
     allowNull: false
+  },
+  place: {
+    type: DataTypes.STRING
   }
 })
 

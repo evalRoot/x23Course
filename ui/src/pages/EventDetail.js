@@ -64,7 +64,10 @@ function EventDetail() {
               <strong>Проекты:</strong> {event.projects}
             </li>
             <li>
-              {online ? (<span><strong>Свободных мест:</strong> Мест не ограничено </span>) : (
+              <strong>Местро проведения:</strong> {event.place}
+            </li>
+            <li>
+              {event.educationForm === online ? (<span><strong>Свободных мест:</strong> Мест не ограничено </span>) : (
                 <span><strong>Свободных мест:</strong> {event.freeVacancies} из {event.vacancies} </span>
               )}
             </li>
