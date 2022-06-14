@@ -1,4 +1,4 @@
-import { CircularProgress, Container, Typography, Button, Modal } from "@mui/material";
+import { CircularProgress, Container, Typography, Button, Modal, Snackbar, Alert, Card, Link } from "@mui/material";
 import { Box } from "@mui/system";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -22,7 +22,7 @@ const style = {
 };
 
 export default function CourseDetail (props) {
-  const {id} = useParams()
+  const {id = -1} = useParams()
   const [courseName, setCourseName] = useState('')
   const [loading, setLoading] = useState(true)
   const [status404, setFlag404] = useState(false)
@@ -32,6 +32,11 @@ export default function CourseDetail (props) {
   const {user} = useContext(Context)
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate()
+  const [assign, setAssign] = useState(false)
+  const [assignFailed, setAssignFailed] = useState(false)
+  const [assignMessage, setAssignMessage] = useState('')
+  const [assignFailedMessage, setAssignFailedMessage] = useState('')
+  const [isCourseAccsess, setCourseAccess] = useState(false)
 
   const toModule = (index) => {
     navigate('module-detail', {
@@ -47,6 +52,18 @@ export default function CourseDetail (props) {
   useEffect(() => {
     (async () => {
       try {
+
+        if (user.getUser.role === ADMIN_ROLE || user.getUser.role === LEADER_ROLE) {
+          setCourseAccess(true)
+        } else {
+          const isAssigned = await request('isAssignedCourse', 'POST', {
+            userId: user.getUser.id,
+            courseId: id
+          })
+          
+          setCourseAccess(isAssigned.access)
+        }
+
         const responseCourse = await request('course', 'POST', {id})
         let responseUsers = []
 
@@ -77,13 +94,34 @@ export default function CourseDetail (props) {
     })()
   }, [])
 
-  const assignToCourse = async () => {
+  const assignToCourse = async (self) => {
     const response = await request('assignCourse', 'POST', {
       courseId: id,
-      usersIds: checked
+      usersIds: self ? [user.getUser.id] : checked
     })
     setShowModal(false)
-    console.log(response)
+    if (response.successAssign.length !== 0) {
+      setAssignMessage(response.successAssign.join(', '))
+      setAssign(true)
+    }
+    if (response.failesAssign.length !== 0) {
+      setAssignFailedMessage(response.failesAssign.join(', '))
+      setAssignFailed(true)
+    }
+
+    if (self) {
+      window.location.reload();
+    }
+  }
+
+  const handleDeleteCourse = async () => {
+    try {
+      await request('deleteCourse', 'POST', { id })
+      navigate('/courses')
+    } catch (error) {
+      console.log(error.message)
+      alert('Не удалось Удалить')
+    }
   }
 
   const renderComponent = () => {
@@ -99,7 +137,7 @@ export default function CourseDetail (props) {
           <Typography style={{
             color: '#1976d2',
             marginTop: 20
-          }} variant="h7">Loading...</Typography>
+          }} variant="h7">Загрузка...</Typography>
         </Box>
         )
     }
@@ -110,44 +148,87 @@ export default function CourseDetail (props) {
       )
     }
 
+    const getControls = () => {
+      if (user.getUser.role !== USER_ROLE) {
+        return (
+          <Button onClick={handleModalOpen} variant="contained" size="large">
+            Назначить сотрудникам
+          </Button>
+        )
+      }
+
+      if (user.getUser.role === USER_ROLE && !isCourseAccsess) {
+        return (
+          <Button onClick={() => assignToCourse(true)} variant="contained" size="large">
+            Записаться на курс
+          </Button>
+        )
+      }
+    }
+
+
     return (
       <Container>
         <div>
           <Typography variant="h5" sx={{ mb: 3 }}>Название курса: {courseName}</Typography>
-          <Typography variant="h6" sx={{ mb: 3 }} style={{display: 'inline-flex', alignItems: 'center'}}>
-            Карта Курса
-            <AccountTreeIcon style={{marginLeft: 10}} fontSize="medium"/>
-          </Typography>
           <Box style={{marginBottom: 20}}>
-            <Button onClick={handleModalOpen} variant="contained" size="large">
-              {user.getUser.role === USER_ROLE ? 'Записаться на курс' : 'Назначить сотрудникам'}
-            </Button>
+            {getControls()}
           </Box>
+          {user.getUser.role === ADMIN_ROLE &&
+            <Box style={{marginBottom: 20}}>
+              <Button onClick={() => navigate('update')} variant="contained" size="medium">
+                Редактировать курс
+              </Button>
+              <Button style={{ marginLeft: 10 }} color="error" onClick={handleDeleteCourse} variant="contained" size="medium">
+                Удалить курс
+              </Button>
+            </Box>
+          }
           <Container>
-            <ol>
-              {modules.map((moduleCurr, index) => (
-                <li key={index}>
-                  <p> Модуль </p>
-                  <span style={{
-                    cursor: 'pointer',
-                    color: '#2065D1',
-                    textDecoration: 'underline'
-                  }} onClick={() => toModule(index)}>
-                    {moduleCurr.name}
-                  </span>
-                </li>
-              ))}
-              <li className="">
-                <p>Модуль</p>
-                <span style={{
-                    cursor: 'pointer',
-                    color: '#2065D1',
-                    textDecoration: 'underline'
-                  }} onClick={() => navigate('quiz')}>
-                    Тест
-                </span>
-              </li>
-            </ol>
+            {isCourseAccsess ? (
+              <>
+                <Typography variant="h6" sx={{ mb: 3 }} style={{display: 'inline-flex', alignItems: 'center'}}>
+                  Карта Курса
+                  <AccountTreeIcon style={{marginLeft: 10}} fontSize="medium"/>
+                </Typography>
+                <ol>
+                  {modules.map((moduleCurr, index) => (
+                    <li key={index}>
+                      <Card style={{ padding: '6px 12px', width: 300, marginBottom: 10 }}>
+                        <p> Модуль: </p>
+                        <Link
+                          component="button"
+                          variant="body2"
+                          onClick={() => {
+                            toModule(index)
+                          }}
+                        >
+                          {moduleCurr.name}
+                        </Link>
+                      </Card>
+                    </li>
+                  ))}
+                  <li className="">
+                    <Card style={{ padding: '6px 12px', width: 300, marginBottom: 10 }}>
+                      <p>Модуль:</p>
+                      <Link
+                          component="button"
+                          variant="body2"
+                          onClick={() => {
+                            navigate('quiz')
+                          }}
+                        >
+                          Тест Курса
+                        </Link>
+                    </Card>
+                  </li>
+                </ol>
+              </>
+            ) : (
+              <Typography variant="h6" sx={{ mb: 3 }} style={{display: 'inline-flex', alignItems: 'center'}}>
+                Вы не записаны на курс
+              </Typography>
+            )}
           </Container>
         </div>
         <Modal
@@ -171,6 +252,16 @@ export default function CourseDetail (props) {
             </Button>
           </Box>
         </Modal>
+        <Snackbar open={assign} autoHideDuration={10000} onClose={() => setAssign(false)}>
+          <Alert onClose={() => setAssign(false)} severity="success" sx={{ width: '100%' }}>
+            {assignMessage}
+          </Alert>
+        </Snackbar>
+        <Snackbar open={assignFailed} autoHideDuration={10000} onClose={() => setAssignFailed(false)}>
+          <Alert onClose={() => setAssignFailed(false)} severity="error" sx={{ width: '100%'}}>
+            {assignFailedMessage}
+          </Alert>
+        </Snackbar>
       </Container>
     )
   }

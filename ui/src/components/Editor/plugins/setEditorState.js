@@ -13,6 +13,9 @@ SetEditorState.propTypes = {
 export default function SetEditorState(props) {
   const [editor] = useLexicalComposerContext();
   const { config } = props
+  useEffect(() => {
+    onMount()
+  }, [config])
   const onMount = () => {
     if (config) {
       const data = config
@@ -24,7 +27,6 @@ export default function SetEditorState(props) {
       editor.dispatchCommand(CLEAR_HISTORY_COMMAND, undefined);
     }
   }
-  onMount()
   return (
     ''
   )

@@ -161,7 +161,7 @@ export default function AddUser() {
 
   return (
     <Container>
-      <Typography variant="h6" sx={{ mb: 5 }}>
+      <Typography variant="h4" sx={{ mb: 5 }}>
         Добавить Сотрудника/Руководителя
       </Typography>
         <Box onSubmit={handleSubmit} component="form">

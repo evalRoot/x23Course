@@ -96,7 +96,7 @@ export default function Quiz(props) {
         <>
           <Card style={{ padding: 16 }}>
             {isPassed ? (
-              <Alert severity="success">Баллов набранно {score}. Тест Пройден! Теперь можешь посмотреть токийский гуль</Alert>
+              <Alert severity="success">Баллов набранно {score}. Тест Пройден!</Alert>
             ) : (
               <Alert severity="error">Баллов набранно {score}. Тест НЕ ПРОЙДЕН! Давай заново</Alert>
             )}

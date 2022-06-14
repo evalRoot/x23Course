@@ -4,17 +4,18 @@ import Step from '@mui/material/Step';
 import StepButton from '@mui/material/StepButton';
 import StepContent from '@mui/material/StepContent';
 import Button from '@mui/material/Button';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Container } from '@mui/system';
 import { Alert, AlertTitle, LinearProgress, Snackbar, TextField, Typography } from '@mui/material';
 import Editor from '../components/Editor/Editor';
 import request from '../helpers/request';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import AddQuiz from '../components/AddQuiz';
 
-const labels = []
+let labels = []
 
 export default function CourseUpdate() {
+  const {id = -1} = useParams()
   const [courseName, setCourseName] = useState('')
   const [activeStep, setActiveStep] = useState(0)
   const [loading, setLoading] = useState(false)
@@ -28,7 +29,26 @@ export default function CourseUpdate() {
     successIsOpen: false,
     errorText: '',
     successText: '',
-})
+  })
+
+  useEffect(() => {
+    (async () => {
+      if (id !== -1) {
+        labels = []
+        const responseCourse = await request('course', 'POST', {id})
+        const responseModules = JSON.parse(responseCourse.modules)
+        setCourseName(responseCourse.name)
+        setStep(responseModules)
+        if (labels.length === 0) {
+          labels.push(...responseModules.map(step => step.name))
+        }
+      } else {
+        setCourseName('')
+        setStep([])
+      }
+    })()
+  }, [id])
+
 
   const addStep = () => {
     const stepClone = [...steps]
@@ -44,27 +64,24 @@ export default function CourseUpdate() {
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
-  };
+  }
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  };
+  }
 
   const handleStep = (step) => () => {
     setActiveStep(step);
-  };
+  }
 
-  const handleReset = () => {
-    setActiveStep(0);
-  };
-
-  const handleSave = async () => {
+  const handleSave = async (edit = false) => {
     try {
       const course = {
         name: '',
         modules: []
       }
       let response = {}
+      let requestData = {}
   
       if (courseName.length === 0) {
         notifySet({
@@ -75,15 +92,18 @@ export default function CourseUpdate() {
         })
         return
       }
-  
-      if (steps.length !== editorStateRefs.current.length || steps.length !== labels.length) {
-        notifySet({
-          errorIsOpen: true,
-          successIsOpen: false,
-          errorText: 'Один из модулей не завершен до конца',
-          successText: '',
-        })
-        return
+
+      if (edit) {
+      } else {
+        if (steps.length !== editorStateRefs.current.length || steps.length !== labels.length) {
+          notifySet({
+            errorIsOpen: true,
+            successIsOpen: false,
+            errorText: 'Один из модулей не завершен до конца',
+            successText: '',
+          })
+          return
+        }
       }
   
       steps.forEach((step, index) => {
@@ -96,11 +116,21 @@ export default function CourseUpdate() {
       course.name = courseName
 
       setLoading(true)
-
-      response = await request('addCouse', 'POST', {
-        course,
-        questions
-      })
+      
+      if (edit) {
+        requestData = {
+          course,
+          questions,
+          id
+        }
+        response = await request('editCourse', 'POST', requestData)
+      } else {
+        requestData = {
+          course,
+          questions
+        }
+        response = await request('addCouse', 'POST', requestData)
+      }
 
       if (response.hasOwnProperty('error')) {
         notifySet({
@@ -121,7 +151,11 @@ export default function CourseUpdate() {
       
       setLoading(false)
 
-      navigate(`/courses/${response.id}`)
+      if (edit) {
+        navigate(`/courses/${id}`)
+      } else {
+        navigate(`/courses/${response.id}`)
+      }
     } catch (error) {
       console.log(error)
     }
@@ -129,12 +163,16 @@ export default function CourseUpdate() {
 
   return (
     <Container>
+      <Typography variant="h4" sx={{ mb: 5 }}>
+        {id === -1 ? 'Добавление Курса' : 'Редактирование Курса'}
+      </Typography>
       <TextField
         autoComplete="fname"
         name="firstName"
         variant="outlined"
         required
         fullWidth
+        value={courseName}
         onChange={evt => {
           setCourseName(evt.target.value)
         }}
@@ -161,7 +199,7 @@ export default function CourseUpdate() {
               >
                 Модуль
               </StepButton>
-              <StepContent TransitionProps={{ unmountOnExit: false }}>
+              <StepContent>
                 <TextField
                   autoComplete="fname"
                   name="firstName"
@@ -169,6 +207,7 @@ export default function CourseUpdate() {
                   required
                   fullWidth
                   id="courseName"
+                  defaultValue={labels[index]}
                   label="Название Модуля"
                   onChange={evt => {
                     labels[index] = evt.target.value
@@ -178,7 +217,7 @@ export default function CourseUpdate() {
                     marginBottom: 20
                   }}
                   />
-                <Editor onChange={editorState => editorStateRefs.current[index] = editorState} readOnly={activeStep !== index} key={index}/>
+                <Editor config={step.description} onChange={editorState => editorStateRefs.current[index] = editorState} readOnly={activeStep !== index} key={index}/>
                 <Box style={{marginTop: 15}} sx={{ mb: 2 }}>
                   <div>
                     <Button
@@ -206,15 +245,15 @@ export default function CourseUpdate() {
           setTestFinish(value)
         }} />
         {(isTestFinish && activeStep === steps.length && steps.length !== 0) &&
-          <Button onClick={handleSave} sx={{ mt: 1, mr: 1 }}>
-            Сохранить Курс
+          <Button variant="contained" onClick={() => handleSave(id !== -1)} sx={{ mt: 1, mr: 1 }}>
+            {id === -1 ? 'Сохранить Курс' : 'Изменить Курс'}
           </Button>
         }
         {loading &&
           <>
-          <Alert severity="info">
+          <Alert style={{ marginTop: 15 }} severity="info">
             <AlertTitle>Загрузка</AlertTitle>
-            <span style={{fontSize: 16}}>Идет добавление <strong>курса</strong></span>
+            <span style={{fontSize: 16}}>{`${id === -1 ? 'Идет добавление курса': 'Идет изменение курса'}`}</span>
           </Alert>
             <LinearProgress />
           </>

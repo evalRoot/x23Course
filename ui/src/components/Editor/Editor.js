@@ -70,6 +70,7 @@ export default function Editor(props) {
   const {
     readOnly = false,
     config,
+    onChange = () => {}
   } = props
 
   useEffect(() => {
@@ -78,12 +79,7 @@ export default function Editor(props) {
     } else {
       editorConfig.readOnly = false
     }
-
   }, [])
-
-  const onChange = (editorState) => {
-    props.onChange(editorState)
-  }
 
   return (
     <LexicalComposer initialConfig={editorConfig}>
@@ -104,13 +100,9 @@ export default function Editor(props) {
           <AutoLinkPlugin />
           <CodeHighlightPlugin />
           <ListMaxIndentLevelPlugin maxDepth={7} />
-          <SetEditorState/>
           <LexicalMarkdownShortcutPlugin transformers={TRANSFORMERS} />
           <LexicalOnChangePlugin onChange={onChange}/>
-          {!readOnly &&
-            <SaveEditor/>
-          }
-          {readOnly &&
+          {config &&
             <SetEditorState config={config} />
           }
         </div>

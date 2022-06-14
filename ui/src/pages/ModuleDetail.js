@@ -56,9 +56,11 @@ export default function ModuleDetail () {
     <Button variant="contained" onClick={toCourse} style={{ marginBottom: 15 }} fontSize='large'>
       К курсу
     </Button>
-    <Box style={{position:'relative', width: '100%', display: 'flex', height: 36}}>
+    <Box style={{position:'relative', width: '100%', display: 'flex', height: 36, marginTop: 15, marginBottom: 15}}>
       {currModule !== 0 &&
         <Button
+          color='info'
+          variant="outlined"
           style={{
             position: 'absolute',
             left: 0
@@ -71,6 +73,8 @@ export default function ModuleDetail () {
       }
       {currModule !== modules.length - 1 &&
         <Button
+          color='info'
+          variant="outlined"
           onClick={handleNavigateNext}
           style={{
             position: 'absolute',
@@ -95,7 +99,7 @@ export default function ModuleDetail () {
     <div>
       <Typography variant="h5" sx={{ mb: 3 }}>{moduleName}</Typography>
       {show &&
-        <Editor readOnly onChange={() => {}} config={editorState} />
+        <Editor readOnly config={editorState} />
       }
     </div>
   </Container>

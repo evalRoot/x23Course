@@ -106,13 +106,6 @@ export default function TableComponent(props) {
 
   const isDataNotFount = filteredItems.length === 0;
 
-  filteredItems.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
-    
-  })
-
-  filteredItems.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
-    console.log(row)
-  })
 
   return (
     <Container>
@@ -144,7 +137,10 @@ export default function TableComponent(props) {
                     tabIndex={-1}
                   >
                     {Object.keys(row).map((key, index) => {
-                      console.log(row[key])
+                      if (key === 'sortBy') {
+                        return ''
+                      }
+
                       if (row[key].linkTo) {
                         return (
                           <TableCell key={index} align='left'>

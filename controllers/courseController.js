@@ -1,11 +1,10 @@
+const res = require('express/lib/response')
 const { Course, UserCourse, User, courseQuiz } = require('../models')
 
 class CourseController {
   async create(req, res) {
     try {
       const {course, questions} = req.body
-  
-      console.log(course)
 
       if (course.name.length !== 0 && course.modules.length !== 0) {
         const courseCurr = await Course.create({
@@ -88,13 +87,13 @@ class CourseController {
         user = await User.findOne({ where: { id: usersIds[i] }})
         course = await Course.findOne({ where: {id: courseId} })
         if (candidate) {
-          failesAssign.push(`Сотрудник ${user.firstName} ${user.middleName} ${user.lastName} уже привязан к курсу ${course.name}`)
+          failesAssign.push(`Сотрудник ${user.firstName} ${user.middleName} ${user.lastName} уже привязан/а к курсу ${course.name}`)
         } else {
           await UserCourse.create({
             UserId: usersIds[i],
             CourseId: courseId
           }),
-          successAssign.push(`Сотрудник ${user.firstName} ${user.middleName} ${user.lastName} привязан к курсу ${course.name}`)
+          successAssign.push(`Сотрудник: ${user.firstName} ${user.middleName} ${user.lastName} привязан/а к курсу ${course.name}`)
         }
       }
 
@@ -174,6 +173,104 @@ class CourseController {
       console.log(error)
       res.status(400).json({
         message: 'Неизвестная ошибка при получении теста'
+      })
+    }
+  }
+
+  async delete(req, res) {
+    try {
+      const {id} = req.body
+
+      const courseCurr = await Course.findOne(
+      {
+        where: {
+          id
+        }
+      })
+
+      const quizCurr = await courseQuiz.findOne(
+      {
+        where: {
+          CourseId: id
+        }
+      })
+
+      await quizCurr.destroy()
+      await courseCurr.destroy()
+
+      return res.status(200).json({ message: 'Курс Удален'})
+    } catch(error) {
+      console.log('---')
+      console.log(error, 'CourseController edit error')
+      console.log('---')
+      res.status(400).json({
+        message: 'Неизвестная ошибка при редактирование курса'
+      })
+    }
+  }
+
+  async edit(req, res) {
+    try {
+      const {course, questions, id} = req.body
+
+      if (course.name.length !== 0 && course.modules.length !== 0) {
+
+        await Course.update({
+          name: course.name,
+          modules: JSON.stringify(course.modules)
+        },
+        {
+          where: {
+            id
+          }
+        })
+
+        await courseQuiz.update({
+          questions: JSON.stringify(questions),
+        },
+        {
+          where: {
+            CourseId: id
+          }
+        })
+  
+        return res.status(200).json({ message: 'Курс изменен'})
+      } else {
+        if (name.length === 0) {
+          return res.status(400).json({ error: `Поле 'Название курса' не должно быть пустым` })
+        }
+      }
+    } catch(error) {
+      console.log('---')
+      console.log(error, 'CourseController edit error')
+      console.log('---')
+      res.status(400).json({
+        message: 'Неизвестная ошибка при редактирование курса'
+      })
+    }
+  }
+
+  async isAssigned(req, res) {
+    try {
+      const {userId, courseId} = req.body
+      const candidate = await UserCourse.findOne({ where: {
+        UserId: userId,
+        CourseId: courseId
+      } })
+
+      if (candidate) {
+        return res.status(200).json({ access: true })
+      }
+
+      return res.status(200).json({ access: false })
+      
+
+    } catch(error) {
+      console.log('---')
+      console.log(error, 'CourseController isAssigned error')
+      console.log('---')
+      res.status(400).json({
+        message: 'Неизвестная ошибка при получение доступа к курсу'
       })
     }
   }
