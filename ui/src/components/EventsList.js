@@ -92,7 +92,7 @@ import {
   
     return(
       <Container>
-          {props.leaderAssign &&
+          {props.leaderAssign && usersLeaderMapped.length !== 0  &&
             <>
               <InputLabel>Сотрудник</InputLabel>
               <Select
