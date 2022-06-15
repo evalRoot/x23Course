@@ -30,6 +30,7 @@ router.post('/editCourse', checkRoleMiddleware, courseController.edit)
 router.post('/deleteCourse', checkRoleMiddleware, courseController.delete)
 router.post('/isAssignedCourse', courseController.isAssigned)
 router.post('/leaderAssignEvents', eventController.leaderAssignEvents)
+router.post('/leaderAssignCourse', courseController.assignedLeader)
 
 
 module.exports = router

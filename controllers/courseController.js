@@ -276,6 +276,37 @@ class CourseController {
     }
   }
 
+  async assignedLeader(req, res) {
+    try {
+      const {id} = req.body
+      const courses = await Course.findAll()
+      const usersCourses = []
+      const users = await User.findAll({ where: { UserId: id } })
+      const mappedCourses= courses.map(user => ({ name: user.name, id: user.id }))
+      let bufferObj = {}
+      
+      for (let i = 0; i < users.length; i++) {
+        bufferObj.user = {
+          id: users[i].id,
+          user: `${users[i].firstName} ${users[i].lastName} ${users[i].middleName}`,
+        }
+        bufferObj.userCourses = await UserCourse.findAll({ where: { UserId: users[i].id } })
+        usersCourses.push(bufferObj)
+        bufferObj = {}
+      }
+
+      return res.status(200).json({ mappedCourses, usersCourses })
+    } catch(error) {
+      console.log('---')
+      console.log(error, 'CourseController isAssigned error')
+      console.log('---')
+      res.status(400).json({
+        message: 'Неизвестная ошибка при получение доступа к курсу'
+      })
+    }
+
+  }
+
 }
 
 
