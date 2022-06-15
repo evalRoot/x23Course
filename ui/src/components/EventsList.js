@@ -101,9 +101,7 @@ import {
                 value={userLeaderValue}
                 onChange={(evt) => {
                   setUserLeaderValue(evt.target.value)
-                  console.log(usersLeader)
                   const events = usersLeader.find(event => event.user.id === evt.target.value)
-                  console.log(events)
                   setEvents(events.events)
                 }}
                 input={<OutlinedInput />}

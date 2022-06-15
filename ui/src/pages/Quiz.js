@@ -1,6 +1,5 @@
 import { Alert, Button, Card, Checkbox, FormControlLabel, Typography } from "@mui/material"
 import { Container } from "@mui/system";
-import PropTypes from 'prop-types';
 import { useContext, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import request from "../helpers/request";
@@ -9,9 +8,6 @@ import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import moment from "moment";
 import { Context } from "..";
-
-Quiz.propTypes = {
-}
 
 const startDate = moment()
 
@@ -51,7 +47,7 @@ export default function Quiz(props) {
       }
     }
 
-    const score = userCorrectAnswers / questions.length * 100
+    const score = Math.ceil(userCorrectAnswers / questions.length * 100)
     setScore(score)
 
     if (score > 70) {

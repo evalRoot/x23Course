@@ -191,8 +191,6 @@ export default class CalendarView extends React.Component {
   }
 
   onEventClick = (info) => {
-    console.log(info.event.extendedProps.vacancies)
-
     this.setState({
       eventName: info.event.title,
       description: info.event.extendedProps.description,

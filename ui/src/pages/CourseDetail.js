@@ -8,6 +8,7 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import CheckboxList from "../components/Checkbox.List";
 import { Context } from "..";
 import { ADMIN_ROLE, LEADER_ROLE, USER_ROLE } from "../const";
+import moment from "moment";
 
 const style = {
   position: 'absolute',
@@ -52,17 +53,13 @@ export default function CourseDetail (props) {
   useEffect(() => {
     (async () => {
       try {
+        const isAssigned = await request('isAssignedCourse', 'POST', {
+          userId: user.getUser.id,
+          courseId: id
+        })
+        
+        setCourseAccess(isAssigned.access)
 
-        if (user.getUser.role === ADMIN_ROLE || user.getUser.role === LEADER_ROLE) {
-          setCourseAccess(true)
-        } else {
-          const isAssigned = await request('isAssignedCourse', 'POST', {
-            userId: user.getUser.id,
-            courseId: id
-          })
-          
-          setCourseAccess(isAssigned.access)
-        }
 
         const responseCourse = await request('course', 'POST', {id})
         let responseUsers = []
@@ -94,24 +91,26 @@ export default function CourseDetail (props) {
     })()
   }, [])
 
-  const assignToCourse = async (self) => {
+  const assignToCourse = async (evt, selfAssign = false) => {
+    console.log(selfAssign)
     const response = await request('assignCourse', 'POST', {
       courseId: id,
-      usersIds: self ? [user.getUser.id] : checked
+      usersIds: selfAssign ? [user.getUser.id] : checked,
+      activationDate: moment()
     })
     setShowModal(false)
     if (response.successAssign.length !== 0) {
       setAssignMessage(response.successAssign.join(', '))
       setAssign(true)
+      if (selfAssign) {
+        window.location.reload();
+      }
     }
     if (response.failesAssign.length !== 0) {
       setAssignFailedMessage(response.failesAssign.join(', '))
       setAssignFailed(true)
     }
 
-    if (self) {
-      window.location.reload();
-    }
   }
 
   const handleDeleteCourse = async () => {
@@ -151,17 +150,34 @@ export default function CourseDetail (props) {
     const getControls = () => {
       if (user.getUser.role !== USER_ROLE) {
         return (
-          <Button onClick={handleModalOpen} variant="contained" size="large">
-            Назначить сотрудникам
-          </Button>
+          <>
+            <Button onClick={handleModalOpen} variant="contained" size="large">
+              Назначить сотрудникам
+            </Button>
+            <p></p>
+            {!isCourseAccsess &&
+              <Button onClick={(evt) => assignToCourse(evt, true)} style={{marginTop: 20}} variant="contained" size="large">
+                Записаться на курс
+              </Button>
+            }
+            {isCourseAccsess &&
+              <Alert style={{ width: 300, marginTop: 15 }} severity="info">Вы записаны на курс</Alert>
+            }
+          </>
         )
       }
 
       if (user.getUser.role === USER_ROLE && !isCourseAccsess) {
         return (
-          <Button onClick={() => assignToCourse(true)} variant="contained" size="large">
+          <Button onClick={(evt) => assignToCourse(evt, true)} variant="contained" size="large">
             Записаться на курс
           </Button>
+        )
+      }
+
+      if (user.getUser.role === USER_ROLE && isCourseAccsess) {
+        return (
+          <Alert style={{ width: 300, marginTop: 15 }} severity="info">Вы записаны на курс</Alert>
         )
       }
     }
@@ -185,50 +201,48 @@ export default function CourseDetail (props) {
             </Box>
           }
           <Container>
-            {isCourseAccsess ? (
-              <>
-                <Typography variant="h6" sx={{ mb: 3 }} style={{display: 'inline-flex', alignItems: 'center'}}>
-                  Карта Курса
-                  <AccountTreeIcon style={{marginLeft: 10}} fontSize="medium"/>
-                </Typography>
-                <ol>
-                  {modules.map((moduleCurr, index) => (
-                    <li key={index}>
-                      <Card style={{ padding: '6px 12px', width: 300, marginBottom: 10 }}>
-                        <p> Модуль: </p>
-                        <Link
-                          component="button"
-                          variant="body2"
-                          onClick={() => {
-                            toModule(index)
-                          }}
-                        >
-                          {moduleCurr.name}
-                        </Link>
-                      </Card>
-                    </li>
-                  ))}
-                  <li className="">
-                    <Card style={{ padding: '6px 12px', width: 300, marginBottom: 10 }}>
-                      <p>Модуль:</p>
-                      <Link
-                          component="button"
-                          variant="body2"
-                          onClick={() => {
-                            navigate('quiz')
-                          }}
-                        >
-                          Тест Курса
-                        </Link>
-                    </Card>
-                  </li>
-                </ol>
-              </>
-            ) : (
-              <Typography variant="h6" sx={{ mb: 3 }} style={{display: 'inline-flex', alignItems: 'center'}}>
-                Вы не записаны на курс
-              </Typography>
-            )}
+            <Typography variant="h6" sx={{ mb: 3 }} style={{display: 'inline-flex', alignItems: 'center'}}>
+              Карта Курса
+              <AccountTreeIcon style={{marginLeft: 10}} fontSize="medium"/>
+            </Typography>
+            <ol>
+              {modules.map((moduleCurr, index) => (
+                <li key={index}>
+                  <Card style={{ padding: '6px 12px', width: 300, marginBottom: 10 }}>
+                    <p> Модуль: </p>
+                    <Link
+                      component="button"
+                      variant="body2"
+                      style={{ cursor: isCourseAccsess ? 'pointer' : 'default' }}
+                      underline={isCourseAccsess ? 'always' : 'none'}
+                      disabled={!isCourseAccsess}
+                      onClick={() => {
+                        toModule(index)
+                      }}
+                    >
+                      {moduleCurr.name}
+                    </Link>
+                  </Card>
+                </li>
+              ))}
+              <li className="">
+                <Card style={{ padding: '6px 12px', width: 300, marginBottom: 10 }}>
+                  <p>Модуль:</p>
+                  <Link
+                      component="button"
+                      disabled={!isCourseAccsess}
+                      style={{ cursor: isCourseAccsess ? 'pointer' : 'default' }}
+                      underline={isCourseAccsess ? 'always' : 'none'}
+                      variant={'body2'}
+                      onClick={() => {
+                        navigate('quiz')
+                      }}
+                    >
+                      Тест Курса
+                    </Link>
+                </Card>
+              </li>
+            </ol>
           </Container>
         </div>
         <Modal

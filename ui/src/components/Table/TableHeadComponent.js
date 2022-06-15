@@ -39,9 +39,9 @@ export default function TableHeadComponent({
   return (
     <TableHead>
       <TableRow>
-        {headLabel.map((headCell) => (
+        {headLabel.map((headCell, index) => (
           <TableCell
-            key={headCell.id}
+            key={index}
             align={headCell.alignRight ? 'right' : 'left'}
             sortDirection={orderBy === headCell.id ? order : false}
           >

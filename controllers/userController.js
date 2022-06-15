@@ -15,7 +15,8 @@ class UserController {
         role,
         isLeader,
         userIds = [],
-        leaderId = null
+        leaderId = null,
+        GradeId
       } = req.body
       let candidate = {}
       let hash = {}
@@ -54,7 +55,8 @@ class UserController {
         login,
         password: hash,
         role: isLeader ? "LEADER" : role,
-        UserId: leaderId
+        UserId: leaderId,
+        GradeId
       })
       
       if (userIds.length !== 0) {

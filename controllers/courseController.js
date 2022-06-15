@@ -75,7 +75,7 @@ class CourseController {
 
   async assign(req, res) {
     try {
-      const { courseId, usersIds } = req.body
+      const { courseId, usersIds, activationDate} = req.body
       let candidate = {}
       let successAssign = []
       let failesAssign = []
@@ -91,7 +91,8 @@ class CourseController {
         } else {
           await UserCourse.create({
             UserId: usersIds[i],
-            CourseId: courseId
+            CourseId: courseId,
+            activationDate
           }),
           successAssign.push(`Сотрудник: ${user.firstName} ${user.middleName} ${user.lastName} привязан/а к курсу ${course.name}`)
         }
@@ -112,7 +113,7 @@ class CourseController {
   async assignCourses(req, res) {
     try {
       let course = ''
-      const { userId} = req.body
+      const { userId } = req.body
       const userCourses = await UserCourse.findAll({where: { UserId: userId }})
       let userCoursesCopy = userCourses.slice()
       for (let i = 0; i < userCoursesCopy.length; i++) {

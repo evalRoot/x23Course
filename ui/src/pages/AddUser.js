@@ -60,6 +60,10 @@ export default function AddUser() {
   };
 
   const checkRelations = () => {
+    if (users.length === 0) {
+      return []
+    }
+
     let current = {}
     let forFilter = []
     let leaders = users.filter(user => {
@@ -105,11 +109,23 @@ export default function AddUser() {
     try {
       const data = new FormData(evt.currentTarget)
 
+
+      if (grade.length === 0) {
+        notifySet({
+          errorIsOpen: true,
+          successIsOpen: false,
+          errorText: 'Не выбрана компетенция',
+          successText: '',
+        })
+        return
+      }
+
+
       if (!isLeader && !leaderId) {
         notifySet({
           errorIsOpen: true,
           successIsOpen: false,
-          errorText: 'Выберите руководителя',
+          errorText: 'Выберите или создайте руководителя',
           successText: '',
         })
         return

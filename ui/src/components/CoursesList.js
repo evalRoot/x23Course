@@ -70,9 +70,9 @@ export default function CoursesList (props) {
           columns.rows.push(
             {
               link: {linkTo: `courses/${course.CourseId}`, title: course.name},
-              createdAt: moment(course.createdAt).format('DD.MM.YYYY HH:mm:ss'),
-              activationDate : course.activationDate ? moment(course.startDate).format('DD.MM.YYYY HH:mm:ss'): '',
-              endDate: course.endDate ? moment(course.endDate).format('DD.MM.YYYY HH:mm:ss'): '',
+              activationDate: course.activationDate ? moment(course.createdAt).format('DD.MM.YYYY HH:mm:ss') : '',
+              startDate : course.startDate ? moment(course.startDate).format('DD.MM.YYYY HH:mm:ss') : '',
+              endDate: course.endDate ? moment(course.endDate).format('DD.MM.YYYY HH:mm:ss') : '',
               score: course.score,
               status: course.status,
               sortBy: course.name

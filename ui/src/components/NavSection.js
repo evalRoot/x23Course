@@ -57,13 +57,13 @@ function NavItem({ item, active }) {
   if (children) {
     return (
       <List component="div" disablePadding>
-        {children.map((item) => {
+        {children.map((item, index) => {
           const { title, path } = item;
           const isActiveSub = active(path);
 
           return (
             <ListItemStyle
-              key={title}
+              key={index}
               component={RouterLink}
               to={path}
               sx={{
@@ -124,10 +124,10 @@ export default function NavSection({ navConfig, ...other }) {
   return (
     <Box {...other}>
       <List disablePadding sx={{ p: 1 }}>
-        {navConfig.map((item) => {
+        {navConfig.map((item, index) => {
           if (item.permission) {
             return (
-              <NavItem key={item.title} item={item} active={match} />
+              <NavItem key={index} item={item} active={match} />
             )
           }
           return <></>
