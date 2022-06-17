@@ -123,8 +123,6 @@ export default function TableComponent(props) {
     const selectedIndex = selected.map(select => select.id).indexOf(row.id);
     let newSelected = [];
 
-    console.log(row)
-
     if (selectedIndex === -1) {
       newSelected = newSelected.concat(selected, {id: row.id, name: row.name, grade: row.grade,});
     } else if (selectedIndex === 0) {
@@ -148,8 +146,6 @@ export default function TableComponent(props) {
   const isDataNotFount = filteredItems.length === 0;
 
   const isSelected = (id) => {
-    console.log(selected)
-
     return selected.map(select => select.id).indexOf(id) !== -1
   };
 

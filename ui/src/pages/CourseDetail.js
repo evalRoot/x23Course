@@ -160,7 +160,7 @@ export default function CourseDetail (props) {
               </Button>
             }
             {isCourseAccsess &&
-              <Alert style={{ width: 300, marginTop: 15 }} severity="info">Вы записаны на курс</Alert>
+              <Alert style={{ width: 300, marginTop: 15, color: 'rgb(102, 178, 255)'}} severity="info">Вы записаны на курс</Alert>
             }
           </>
         )

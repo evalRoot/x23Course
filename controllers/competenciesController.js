@@ -81,6 +81,8 @@ class competenciesController {
       const competencies = []
       let competence = []
 
+      console.log(userCompetencies)
+
 
       for (let i = 0; i < userCompetencies.length; i++) {
         competence = await Competencies.findOne({ where: { id: userCompetencies[i].CompetencyId } })

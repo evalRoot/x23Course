@@ -52,9 +52,6 @@ function EventDetail() {
               <strong>Дата Завершения:</strong> {moment(event.end).format('DD.MM.YYYY HH:mm:ss')}
             </li>
             <li>
-              <strong>Описание:</strong> {event.description}
-            </li>
-            <li>
               <strong>Формат обучения:</strong> {event.educationForm}
             </li>
             <li>
@@ -70,6 +67,9 @@ function EventDetail() {
               {event.educationForm === online ? (<span><strong>Свободных мест:</strong> Мест не ограничено </span>) : (
                 <span><strong>Свободных мест:</strong> {event.freeVacancies} из {event.vacancies} </span>
               )}
+            </li>
+            <li>
+              <strong>Описание:</strong> {event.description}
             </li>
           </ul>
         </Card>

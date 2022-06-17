@@ -47,7 +47,6 @@ const options = {
   plugins: {
     title: {
       display: true,
-      text: 'Chart.js Bar Chart - Stacked',
     },
   },
   responsive: true,
@@ -57,7 +56,7 @@ const options = {
     },
     y: {
       stacked: true,
-    },
+    }
   },
 };
 
@@ -194,7 +193,10 @@ export default observer(function Dashboard() {
           <Typography variant="h4" sx={{ mb: 2 }}>
             Сводка:
           </Typography>
-          <Card style={{ padding: 15 }}>
+          <Card style={{position:'relative', padding: '15px 45px' }}>
+          <div style={{position: 'absolute', left: '-70px', transform: 'rotate(-90deg)', top: '180px'}}>
+            Количество сотрудников
+          </div>
             <Chart options={options} type='bar' data={stateChart} />
           </Card>
         </>

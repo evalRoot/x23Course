@@ -11,7 +11,7 @@ import TabPanel from '../components/TabPanel';
 import { Chart as ChartJS, ArcElement, Legend } from 'chart.js';
 import { Pie } from 'react-chartjs-2';
 import { Context } from "..";
-import { ADMIN_ROLE } from "../const";
+import { ADMIN_ROLE, LEADER_ROLE } from "../const";
 import request from "../helpers/request";
 import TableComponent from "../components/Table/TableComponent";
 import gradeDecode from "../helpers/gradeDecode";
@@ -59,6 +59,9 @@ export default function Competencies () {
   const [selected, setSelected] = useState([])
   const [competencies, setCompetencies] = useState([])
   const [rows, setRows] = useState([])
+  const [users, setUsers] = useState([])
+  const [userValue, setUserValue] = useState('')
+  const [userCompetencies, setUserCompetencies] = useState([])
   const [chartData, setChartData] = useState({
     labels: ['Соответствие', 'Развитие'],
     datasets: [{}]
@@ -126,7 +129,7 @@ export default function Competencies () {
     }
   }
 
-  const getAssignedCompetences = async () => {
+  const getAssignedCompetences = async (merge = false) => {
     try {
       let response = await request('assignCompetencesList', 'POST', {
         id: user.getUser.id
@@ -134,9 +137,14 @@ export default function Competencies () {
       let grade = ''
       const competencies = response.competencies
 
-      competencies.forEach(competence => {
+
+      competencies.forEach((competence, index) => {
         grade = gradeDecode(competence.gradeId)
         competence.gradeId = grade
+        if (rows.length !== 0 && index < rows.length && merge) {
+          competence.isGrowth = rows[index].isGrowth
+          competence.isDeserved = rows[index].isDeserved
+        }
       })
       setRows(response.competencies)
       updateChartData(response.competencies)
@@ -154,17 +162,31 @@ export default function Competencies () {
 
       alert(response.message)
       setModalAdd(false)
-      setSelected([])
-      getAssignedCompetences()
+      getAssignedCompetences(true)
     } catch (error) {
       console.log(error)
     }
   }
 
+  const usersFromLeader = async () => {
+    try {
+      const response = await request('assignUsers', 'POST', {
+        id: user.getUser.id
+      })
+
+      setUsers(response.users)
+      
+    } catch(error) {
+      console.log(error)
+    }
+  }
+
+
   useEffect(() => {
     getGrades()
     getCompetencies()
     getAssignedCompetences()
+    usersFromLeader()
   }, [])
   
 
@@ -242,6 +264,17 @@ export default function Competencies () {
 
   }
 
+  const handleChangeUser = async (evt) => {
+    try {
+      let response = await request('assignCompetencesList', 'POST', {
+        id: evt.target.value
+      })
+      setUserValue(evt.target.value)
+      setUserCompetencies(response.competencies)
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   return (
   <Container>
@@ -257,8 +290,10 @@ export default function Competencies () {
     <Box sx={{ width: '100%' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-          <Tab label="Компетенции сотрудника" />
-          <Tab label="Задача от Руководителя" />
+          <Tab label="Мои Компетенции" />
+          {user.getUser.role === LEADER_ROLE &&
+            <Tab label="Компетенции подчиненных" />
+          }
         </Tabs>
       </Box>
       
@@ -312,6 +347,73 @@ export default function Competencies () {
         <Button style={{marginTop: 20}} variant="contained" onClick={saveCompetence} color="primary">Сохранить</Button> 
       </TabPanel>
       <TabPanel value={value} index={1}>
+        <InputLabel>Сотрудник</InputLabel>
+        <Select style={{marginBottom: 20}}
+          displayEmpty
+          value={userValue}
+          onChange={handleChangeUser}
+          input={<OutlinedInput />}
+          renderValue={(selected) => {
+            if (selected.length === 0) {
+              return <em>Не выбрано</em>;
+            }
+
+            const user = users.find(user => user.id === selected)
+
+            return `${user.firstName} ${user.lastName} ${user.middleName}`
+          }}
+          inputProps={{ 'aria-label': 'Without label' }}
+        >
+          <MenuItem disabled value="">
+            <em>Не выбрано</em>
+          </MenuItem>
+          {users.map((user, index) => (
+            <MenuItem
+              key={index}
+              value={user.id}
+            >
+              {`${user.firstName} ${user.lastName} ${user.middleName}`}
+            </MenuItem>
+          ))}
+        </Select>
+        <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Название Компетенции</TableCell>
+                  <TableCell align="left">Соответствие</TableCell>
+                  <TableCell align="left">Развитие</TableCell>
+                  <TableCell align="left">Грейд</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {userCompetencies.map((row, index) => (
+                  <TableRow
+                    key={index}
+                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                  >
+                    <TableCell component="th" scope="row">
+                      {row.name}
+                    </TableCell>
+                    <TableCell align="left">
+                      <Checkbox disabled checked={row.isDeserved} />
+                    </TableCell>
+                    <TableCell align="left">
+                      <Checkbox disabled  checked={row.isGrowth} />
+                    </TableCell>
+                    <TableCell align="left">
+                      {row.gradeId}
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {userCompetencies.length === 0 &&
+                  <TableRow style={{ height: 53 }}>
+                      <TableCell colSpan={6}><h4>Компетенции пока нет</h4></TableCell>
+                  </TableRow>
+                }
+              </TableBody>
+            </Table>
+          </TableContainer>
       </TabPanel>
     </Box>
     <Modal

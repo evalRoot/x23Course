@@ -188,7 +188,7 @@ class EventController {
       console.log(error, 'EventController event error')
       console.log('---')
       res.status(400).json({
-          message: 'Неизвестная ошибка при записи мероприятия'
+          message: 'Вы уже записаны'
       })
     }
   }
