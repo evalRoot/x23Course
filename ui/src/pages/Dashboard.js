@@ -3,8 +3,12 @@ import { Container, Typography, Card } from "@mui/material";
 import { observer } from "mobx-react";
 import { useContext, useEffect, useState } from "react";
 import { Context } from "..";
-import { LEADER_ROLE, USER_ROLE } from "../const";
+import { ADMIN_ROLE, LEADER_ROLE, USER_ROLE } from "../const";
 import request from "../helpers/request";
+import imageTP1 from '../img/img1.png'
+import imageTP2 from '../img/img2.png'
+import imageTP3 from '../img/img3.png'
+import imageTP4 from '../img/img4.png'
 import {
   Chart as ChartJS,
   LinearScale,
@@ -26,6 +30,18 @@ ChartJS.register(
   Legend,
   Tooltip
 );
+
+const roleDecod = (role) => {
+  if (role === USER_ROLE) {
+    return 'Сотрудник'
+  }
+
+  if (role === LEADER_ROLE) {
+    return 'Руководитель'
+  }
+
+  return ''
+}
 
 const options = {
   plugins: {
@@ -122,30 +138,67 @@ export default observer(function Dashboard() {
           ],
         }
 
-        console.log(data)
-
         setStateChart(data)
       })()
     }
-    console.log(stateChart, 'state')
   }, [])
 
   return (
     <Container>
-      <Typography variant="h4" sx={{ mb: 2 }}>
-        Сводка:
-      </Typography>
       {isShowLeader && leader.lastName && leader.firstName && leader.middleName  &&
         <>
-          <Typography>
+          <strong>
             Руководитель:
-          </Typography>
-          <p style={{marginBottom: 20}}>{`${leader.lastName} ${leader.firstName} ${leader.middleName}`}</p>
+          </strong>
+          <span style={{display: "inline-block", marginBottom: 10, marginLeft: 5}}>{`${leader.lastName} ${leader.firstName} ${leader.middleName}`}</span>
         </>
       }
-      <Card style={{ padding: 15 }}>
-        <Chart options={options} type='bar' data={stateChart} />
-      </Card>
+      <br/>
+      {
+        user.getUser.role !== ADMIN_ROLE &&
+        <>
+          <strong>
+            Моя должность:
+          </strong>
+          <span style={{display: "inline-block", marginBottom: 20, marginLeft: 5}}>{roleDecod(user.getUser.role)}</span>
+        </>
+      }
+      <div style={{ display: 'flex', marginBottom: 20, justifyContent: 'space-between'}}>
+        <div style={{width: '25%', margin: '0 10px', textAlign: 'center'}}>
+          <a href="https://support.x5.ru/login">
+            <img style={{height: 200, margin: '0 auto'}} src={imageTP1} alt="atom" />
+          </a>
+          <span>Моя поддержка</span>
+        </div>
+        <div style={{width: '25%', margin: '0 10px', textAlign: 'center'}}>
+          <a href="https://newportal.x5.ru/">
+            <img style={{height: 200, margin: '0 auto'}} src={imageTP2} alt="atom" />
+          </a>
+          <span>Портал Х5</span>
+        </div>
+        <div style={{width: '25%', margin: '0 10px', textAlign: 'center'}}>
+          <a href="https://lk.x5.ru/">
+            <img style={{height: 200, margin: '0 auto'}} src={imageTP3} alt="atom" />
+          </a>
+          <span>Личный кабинет</span>
+        </div>
+        <div style={{width: '25%', margin: '0 10px', textAlign: 'center'}}>
+          <a href="https://wiki.x5.ru/">
+            <img style={{height: 200, margin: '0 auto'}} src={imageTP4} alt="atom" />
+          </a>
+          <span>База знаний</span>
+        </div>
+      </div>
+      { user.getUser.role === LEADER_ROLE  &&
+        <>
+          <Typography variant="h4" sx={{ mb: 2 }}>
+            Сводка:
+          </Typography>
+          <Card style={{ padding: 15 }}>
+            <Chart options={options} type='bar' data={stateChart} />
+          </Card>
+        </>
+      }
     </Container>
   )
 })

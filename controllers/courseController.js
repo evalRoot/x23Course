@@ -1,4 +1,3 @@
-const res = require('express/lib/response')
 const { Course, UserCourse, User, courseQuiz } = require('../models')
 
 class CourseController {

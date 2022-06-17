@@ -56,7 +56,7 @@ export default function AddUser() {
       setIsLeader(false)
     }
 
-    setGrade(evt.target.value);
+    setGrade(evt.target.value)
   };
 
   const checkRelations = () => {

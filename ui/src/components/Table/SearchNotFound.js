@@ -16,7 +16,7 @@ export default function SearchNotFound({ searchQuery = '', columns}) {
         <Typography style={{
           padding: 10
         }} gutterBottom align="center" variant="subtitle1">
-          Курсов не найдено
+          Ничего не найдено
         </Typography>
       )
     }

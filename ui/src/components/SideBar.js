@@ -11,6 +11,7 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import InsertInvitationIcon from '@mui/icons-material/InsertInvitation';
+import CoPresentIcon from '@mui/icons-material/CoPresent';
 // ----------------------------------------------------------------------
 
 const RootStyle = styled('div')(({ theme }) => ({
@@ -69,7 +70,12 @@ export default observer(function Sidebar() {
               icon: <CalendarMonthIcon fontSize='medium'/>,
               permission: allAccess
             },
-            
+            {
+              title: 'Компетенции',
+              path: '/competencies',
+              icon: <CoPresentIcon />,
+              permission: allAccess
+            }
           ]} />
       </Drawer>
     </RootStyle>

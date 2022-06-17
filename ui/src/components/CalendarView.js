@@ -92,7 +92,7 @@ export default class CalendarView extends React.Component {
       educationFormValue: 0,
       educationTypeValue: 0,
       projectValue: 0,
-      vacancies: Number(1),
+      vacancies: '',
       place: ''
     }
   }
@@ -209,7 +209,6 @@ export default class CalendarView extends React.Component {
 
   onEventRemove = async () => {
     try {
-      console.log(Number(this.state.currentEvent._def.publicId))
       const response = await request('deleteEvent', 'POST', {
         eventId: Number(this.state.currentEvent._def.publicId)
       })

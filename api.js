@@ -3,6 +3,7 @@ const router = new Router()
 const userController = require('./controllers/userController')
 const courseController = require('./controllers/courseController')
 const eventController = require('./controllers/eventController')
+const competenciesController = require('./controllers/competenciesController')
 const checkRoleMiddleware = require('./middleware/checkRoleMiddleware')
 
 router.post('/registration', checkRoleMiddleware, userController.registration)
@@ -31,6 +32,11 @@ router.post('/deleteCourse', checkRoleMiddleware, courseController.delete)
 router.post('/isAssignedCourse', courseController.isAssigned)
 router.post('/leaderAssignEvents', eventController.leaderAssignEvents)
 router.post('/leaderAssignCourse', courseController.assignedLeader)
+router.post('/createCompetence',  checkRoleMiddleware, competenciesController.create)
+router.get('/competences', competenciesController.get)
+router.post('/assignCompetences', competenciesController.assign)
+router.post('/assignCompetencesList', competenciesController.getAssigned)
+router.post('/saveCompetence', competenciesController.save)
 
 
 module.exports = router

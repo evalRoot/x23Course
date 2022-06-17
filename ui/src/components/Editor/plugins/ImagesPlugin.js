@@ -17,7 +17,6 @@ export function ImagesPlugin(editorState) {
           if (selection !== null) {
             const url = payload;
             document.querySelectorAll('.toolbar-item')[13].click()
-            console.log(document.querySelectorAll('.editor-input'))
             selection.insertNodes([$createImageNode(url)]);
           }
         });

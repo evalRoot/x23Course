@@ -11,7 +11,7 @@ CoursesList.propTypes = {
 };
 
 export default function CoursesList (props) {
-  const [columns, setColumns] = useState([])
+  const [columnsState, setColumns] = useState([])
   const {userId} = props
   useEffect(() => {
     ( async () => {
@@ -30,7 +30,8 @@ export default function CoursesList (props) {
         response.courses.forEach(course => {
           columns.rows.push({
             link: {linkTo: `courses/${course.id}`, title: course.name},
-            sortBy: course.name
+            sortBy: course.name,
+            orderBy: course.name
           })
         });
 
@@ -75,7 +76,8 @@ export default function CoursesList (props) {
               endDate: course.endDate ? moment(course.endDate).format('DD.MM.YYYY HH:mm:ss') : '',
               score: course.score,
               status: course.status,
-              sortBy: course.name
+              sortBy: course.name,
+              orderBy: course.name
             }
           )
         })
@@ -86,6 +88,6 @@ export default function CoursesList (props) {
   }, []) 
 
   return (
-    <TableComponent header={columns.header} rows={columns.rows} />
+    <TableComponent header={columnsState.header} rows={columnsState.rows} />
   )
 }

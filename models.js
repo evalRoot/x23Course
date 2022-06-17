@@ -120,12 +120,32 @@ const Event = sequelize.define('Event', {
   }
 })
 
-const UserEvent = sequelize.define('UserEventt', {
+const UserEvent = sequelize.define('UserEvent', {
   id: {
     type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true
   }
 })
 
+const Competencies = sequelize.define('Competencies', {
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false
+  }  
+})
+
+const UserCompetencies = sequelize.define('UserCompetencies', {
+  id: {
+    type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true
+  },
+  isDeserved: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false
+  },
+  isGrowth: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false
+  }
+})
 
 //Associations
 User.hasMany(User)
@@ -134,15 +154,20 @@ User.belongsTo(User)
 Grade.hasOne(User)
 User.belongsTo(Grade)
 
+Grade.hasOne(Competencies)
+Competencies.belongsTo(Grade)
+
 User.belongsToMany(Course, {through: UserCourse})
 Course.belongsToMany(User, {through: UserCourse })
 
 Course.hasOne(courseQuiz)
 courseQuiz.belongsTo(Course)
 
-
 Event.belongsToMany(User, { through: UserEvent })
 User.belongsToMany(Event, { through: UserEvent })
+
+Competencies.belongsToMany(User, { through: UserCompetencies })
+User.belongsToMany(Competencies, { through: UserCompetencies })
 
 module.exports = {
     User,
@@ -151,6 +176,8 @@ module.exports = {
     Grade,
     courseQuiz,
     Event,
-    UserEvent
+    UserEvent,
+    Competencies,
+    UserCompetencies
 }
 

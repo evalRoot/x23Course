@@ -714,7 +714,6 @@ export default function ToolbarPlugin(readOnly) {
           </button>
           <button
             onClick={() => {
-              console.log('test')
               editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "justify");
             }}
             style={

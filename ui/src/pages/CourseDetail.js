@@ -92,7 +92,6 @@ export default function CourseDetail (props) {
   }, [])
 
   const assignToCourse = async (evt, selfAssign = false) => {
-    console.log(selfAssign)
     const response = await request('assignCourse', 'POST', {
       courseId: id,
       usersIds: selfAssign ? [user.getUser.id] : checked,

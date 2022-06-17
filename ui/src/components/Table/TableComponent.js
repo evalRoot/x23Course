@@ -1,5 +1,5 @@
 import { filter } from 'lodash';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { styled } from '@mui/material/styles';
 // material
 import {
@@ -13,6 +13,7 @@ import {
   TableContainer,
   TablePagination,
   InputAdornment,
+  Checkbox,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 // components
@@ -46,7 +47,6 @@ function applySortFilter(array, comparator, query) {
     return a[1] - b[1];
   });
   if (query) {
-    console.log(array)
     return filter(array, (_user) => _user.sortBy.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   }
   return stabilizedThis.map((el) => el[0]);
@@ -75,11 +75,21 @@ export default function TableComponent(props) {
 
   const {rows = []} = props
 
-  const [orderBy, setOrderBy] = useState('name');
+  const [selected, setSelected] = useState([]);
+
+  const [orderBy, setOrderBy] = useState('orderBy');
 
   const [filterName, setFilterName] = useState('');
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  const {onSelectCheckbox} = props
+
+  useEffect(() => {
+    if (onSelectCheckbox) {
+      onSelectCheckbox(selected)
+    }
+  }, [selected, onSelectCheckbox])
 
   const handleRequestSort = (evt, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -100,12 +110,48 @@ export default function TableComponent(props) {
     setFilterName(evt.target.value);
   };
 
+  const handleSelectAllClick = (event) => {
+    if (event.target.checked) {
+      const newSelecteds = rows.map((n) => n.name);
+      setSelected(newSelecteds);
+      return;
+    }
+    setSelected([]);
+  };
+
+  const handleClick = (event, row) => {
+    const selectedIndex = selected.map(select => select.id).indexOf(row.id);
+    let newSelected = [];
+
+    console.log(row)
+
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selected, {id: row.id, name: row.name, grade: row.grade,});
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selected.slice(1));
+    } else if (selectedIndex === selected.length - 1) {
+      newSelected = newSelected.concat(selected.slice(0, -1));
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selected.slice(0, selectedIndex),
+        selected.slice(selectedIndex + 1),
+      );
+    }
+
+    setSelected(newSelected);
+  }
+
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
   const filteredItems = rows.length !== 0 ? applySortFilter(rows, getComparator(order, orderBy), filterName) : []
 
   const isDataNotFount = filteredItems.length === 0;
 
+  const isSelected = (id) => {
+    console.log(selected)
+
+    return selected.map(select => select.id).indexOf(id) !== -1
+  };
 
   return (
     <Container>
@@ -123,42 +169,59 @@ export default function TableComponent(props) {
         <TableContainer sx={{ minWidth: 800 }}>
           <Table>
             <TableHeadComponent
+              onSelectAllClick={handleSelectAllClick}
               order={order}
+              withCheckbox={props.withCheckbox}
               orderBy={orderBy}
               headLabel={header}
-              rowCount={header.length}
+              numSelected={selected.length}
+              rowCount={rows.length}
               onRequestSort={handleRequestSort}
             />
             <TableBody>
-                {filteredItems.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
-                  <TableRow
-                    hover
-                    key={index}
-                    tabIndex={-1}
-                  >
-                    {Object.keys(row).map((key, index) => {
-                      if (key === 'sortBy') {
-                        return ''
-                      }
+                {filteredItems.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
+                   const isItemSelected = isSelected(row.id)
+                  return (
+                    <TableRow
+                      hover
+                      onClick={(event) => handleClick(event, row)}
+                      key={index}
+                      tabIndex={-1}
+                    >
 
-                      if (row[key].linkTo) {
+                      {props.withCheckbox &&
+                        <TableCell padding="checkbox" key={index} align='left'>
+                          <Checkbox
+                            color="primary"
+                            checked={isItemSelected}
+                          />
+                        </TableCell>
+                      } 
+
+                      {Object.keys(row).map((key, index) => {
+                        if (key === 'sortBy' || key === 'orderBy' || key === 'id') {
+                          return ''
+                        }
+
+                        if (row[key].linkTo) {
+                          return (
+                            <TableCell key={index} align='left'>
+                              <a href={row[key].linkTo}>
+                                {row[key].title}
+                              </a>
+                            </TableCell>
+                          )
+                        }
+
                         return (
                           <TableCell key={index} align='left'>
-                            <a href={row[key].linkTo}>
-                              {row[key].title}
-                            </a>
+                            {row[key]}
                           </TableCell>
                         )
-                      }
-
-                      return (
-                        <TableCell key={index} align='left'>
-                          {row[key]}
-                        </TableCell>
-                      )
-                    })}
-                  </TableRow>
-                ))}
+                      })}
+                    </TableRow>
+                  ) 
+                })}
                 {emptyRows > 0 && (
                 <TableRow style={{ height: 53 * emptyRows }}>
                     <TableCell colSpan={6} />
