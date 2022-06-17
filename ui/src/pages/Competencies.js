@@ -119,6 +119,8 @@ export default function Competencies () {
           id: index,
           name: competence.name,
           grade: gradeDecode(competence.GradeId),
+          sortBy: competence.name,
+          orderBy: competence.name
         })
       })
 
