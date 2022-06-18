@@ -59,7 +59,11 @@ export default function CourseDetail (props) {
           courseId: id
         })
         
-        setCourseAccess(isAssigned.access)
+        if (user.getUser.role === ADMIN_ROLE) {
+          setCourseAccess(true)
+        } else {
+          setCourseAccess(isAssigned.access)
+        }
         setCourseFinish(isAssigned.finish)
 
 

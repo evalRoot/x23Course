@@ -90,7 +90,7 @@ class competenciesController {
             name: userCompetencies[i].name,
             isDeserved: false,
             isGrowth: false,
-            gradeId: competence.GradeId,
+            gradeId: userCompetencies[i].GradeId,
             CompetencyId: userCompetencies[i].id
           })
         }
