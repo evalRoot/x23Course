@@ -37,6 +37,7 @@ router.get('/competences', competenciesController.get)
 router.post('/assignCompetences', competenciesController.assign)
 router.post('/assignCompetencesList', competenciesController.getAssigned)
 router.post('/saveCompetence', competenciesController.save)
+router.post('/isAssignEvent', eventController.isAssign) 
 
 
 module.exports = router

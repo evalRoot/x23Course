@@ -1,4 +1,4 @@
-import { Box, Container, Typography, Card, Button } from "@mui/material"
+import { Box, Container, Typography, Card, Button, Alert } from "@mui/material"
 import { useContext, useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import { Context } from ".."
@@ -11,13 +11,32 @@ const online = 'Онлайн'
 function EventDetail() {
   const {id} = useParams()
   const [event, setEvent] = useState([])
+  const [isAssigned, setIsAssign] = useState(false) 
   const {user} = useContext(Context)
 
-  useEffect(() => {
-    (async () => {
+  const getEvent = async () => {
+    try {
       const response = await request('event', 'POST', { id })
       setEvent(response.event)
-    })()
+    } catch (error) {
+      console.log(error)
+    } 
+  }
+
+  const isAssignedReq = async () => {
+    try {
+      const response = await request('isAssignEvent', 'POST', { id: user.getUser.id })
+      console.log(response)
+      setIsAssign(response.access)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+
+  useEffect(() => {
+    getEvent()
+    isAssignedReq()
   }, [])
 
   const assign = async () => {
@@ -73,7 +92,11 @@ function EventDetail() {
             </li>
           </ul>
         </Card>
-        <Button style={{ marginTop: 15 }} variant="contained" onClick={assign}> Записаться на курс </Button>
+        {isAssigned ? (
+          <div style={{ padding: 15, borderRadius: 10, textAlign: 'center', width: 300, marginTop: 15, color: 'white', backgroundColor: 'rgb(102, 178, 255)'}} severity="info">Вы записаны на мероприятие</div>
+        ) : (
+          <Button style={{ marginTop: 15 }} variant="contained" onClick={assign}> Записаться на мероприятие </Button>
+        )}
       </Box>
     </Container>
   )

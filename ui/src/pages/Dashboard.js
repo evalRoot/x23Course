@@ -31,18 +31,6 @@ ChartJS.register(
   Tooltip
 );
 
-const roleDecod = (role) => {
-  if (role === USER_ROLE) {
-    return 'Сотрудник'
-  }
-
-  if (role === LEADER_ROLE) {
-    return 'Руководитель'
-  }
-
-  return ''
-}
-
 const options = {
   plugins: {
     title: {
@@ -152,16 +140,6 @@ export default observer(function Dashboard() {
           <span style={{display: "inline-block", marginBottom: 10, marginLeft: 5}}>{`${leader.lastName} ${leader.firstName} ${leader.middleName}`}</span>
         </>
       }
-      <br/>
-      {
-        user.getUser.role !== ADMIN_ROLE &&
-        <>
-          <strong>
-            Моя должность:
-          </strong>
-          <span style={{display: "inline-block", marginBottom: 20, marginLeft: 5}}>{roleDecod(user.getUser.role)}</span>
-        </>
-      }
       <div style={{ display: 'flex', marginBottom: 20, justifyContent: 'space-between'}}>
         <div style={{width: '25%', margin: '0 10px', textAlign: 'center'}}>
           <a href="https://support.x5.ru/login">
@@ -193,9 +171,9 @@ export default observer(function Dashboard() {
           <Typography variant="h4" sx={{ mb: 2 }}>
             Сводка:
           </Typography>
-          <Card style={{position:'relative', padding: '15px 45px' }}>
-          <div style={{position: 'absolute', left: '-70px', transform: 'rotate(-90deg)', top: '180px'}}>
-            Количество сотрудников
+          <Card style={{position:'relative', padding: '25px 45px' }}>
+          <div style={{position: 'absolute', left: '20px', top: '10px', fontSize: 14, lineHeight: '16px', textAlign: 'center'}}>
+            Количество <br/> сотрудников
           </div>
             <Chart options={options} type='bar' data={stateChart} />
           </Card>

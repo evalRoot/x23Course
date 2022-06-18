@@ -14,6 +14,9 @@ import {
   TablePagination,
   InputAdornment,
   Checkbox,
+  Select,
+  MenuItem,
+  InputLabel,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 // components
@@ -73,7 +76,9 @@ export default function TableComponent(props) {
   
   const {header = []} = props
 
-  const {rows = []} = props
+  const rowsProps = props.rows || []
+
+  const [rows, setRows] = useState(rowsProps)
 
   const [selected, setSelected] = useState([]);
 
@@ -83,6 +88,8 @@ export default function TableComponent(props) {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
+  const [filterBySelectVal, setValueFilterSelect] = useState('')
+
   const {onSelectCheckbox} = props
 
   useEffect(() => {
@@ -90,6 +97,19 @@ export default function TableComponent(props) {
       onSelectCheckbox(selected)
     }
   }, [selected, onSelectCheckbox])
+
+  useEffect(() => {
+    setPage(0)
+    const rowsCopy = rowsProps
+    let filteredItems = rowsCopy
+
+    if (props.selectFilter && filterBySelectVal !== '' && rows.length !== 0) {
+      filteredItems = rowsCopy.filter(item => item[props.filterBySelect] === filterBySelectVal)
+    }
+
+    setRows(filteredItems)
+
+  }, [filterBySelectVal])
 
   const handleRequestSort = (evt, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -140,7 +160,7 @@ export default function TableComponent(props) {
   }
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
-
+  
   const filteredItems = rows.length !== 0 ? applySortFilter(rows, getComparator(order, orderBy), filterName) : []
 
   const isDataNotFount = filteredItems.length === 0;
@@ -152,16 +172,37 @@ export default function TableComponent(props) {
   return (
     <Container>
       <Card>
-        <SearchStyle
-          value={filterName}
-          onChange={handleFilterByName}
-          placeholder="Поиск..."
-          startAdornment={
-            <InputAdornment position="start">
-              <SearchIcon fontSize='medium'/>
-            </InputAdornment>
+        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+          <SearchStyle
+            value={filterName}
+            onChange={handleFilterByName}
+            placeholder="Поиск..."
+            startAdornment={
+              <InputAdornment position="start">
+                <SearchIcon fontSize='medium'/>
+              </InputAdornment>
+            }
+          />
+          {props.selectFilter &&
+            <div>
+              <InputLabel>Фильтровать:</InputLabel>
+              <Select
+                displayEmpty
+                onChange={(evt) => setValueFilterSelect(evt.target.value)}
+                value={filterBySelectVal}
+              >
+                <MenuItem disabled value="">
+                  <em>Не выбрано</em>
+                </MenuItem>
+                {props.selectFilterItems.map(item => (
+                  <MenuItem value={item.value}>
+                    {item.name}
+                  </MenuItem>
+                ))}
+            </Select>
+          </div>
           }
-        />
+        </div>
         <TableContainer sx={{ minWidth: 800 }}>
           <Table>
             <TableHeadComponent

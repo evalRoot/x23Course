@@ -236,6 +236,30 @@ class EventController {
     }
   }
 
+  async isAssign (req, res) {
+    try {
+      const {id} = req.body
+      let candidate = {}
+      let access = false
+
+      candidate = await UserEvent.findAll({ where: { UserId: id } })
+  
+      console.log(candidate.length !== 0)
+      if (candidate.length !== 0) {
+        access = true
+      }
+  
+      return res.status(200).json({ access })
+    } catch (error) {
+      console.log('---')
+      console.log(error, 'EventController isAssign error')
+      console.log('---')
+      res.status(400).json({
+          message: 'Неизвестная ошибка при получение записи мероприятия'
+      })
+    }
+  }
+
 }
 
 module.exports = new EventController()

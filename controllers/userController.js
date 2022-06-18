@@ -105,7 +105,8 @@ class UserController {
           middleName: user.middleName,
           lastName: user.lastName,
           role: user.role,
-          UserId: user.UserId
+          UserId: user.UserId,
+          GradeId: user.GradeId
         }, process.env.SECRET_KEY, {expiresIn: '24h'})
         return res.status(200).json({ token: token })
       } else {

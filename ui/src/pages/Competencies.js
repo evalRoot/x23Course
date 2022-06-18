@@ -53,7 +53,7 @@ export default function Competencies () {
   const {user} = useContext(Context)
   const [modalCreate, setModalCreate] = useState(false)
   const [modalAdd, setModalAdd] = useState(false)
-  const [grades, setGrades] = useState([{id: -1}])
+  const [grades, setGrades] = useState([])
   const [grade, setGrade] = useState('')
   const [competenceName, competenceSetName] = useState('')
   const [selected, setSelected] = useState([])
@@ -120,7 +120,7 @@ export default function Competencies () {
           name: competence.name,
           grade: gradeDecode(competence.GradeId),
           sortBy: competence.name,
-          orderBy: competence.name
+          orderBy: competence.gradeId
         })
       })
 
@@ -134,7 +134,8 @@ export default function Competencies () {
   const getAssignedCompetences = async (merge = false) => {
     try {
       let response = await request('assignCompetencesList', 'POST', {
-        id: user.getUser.id
+        id: user.getUser.id,
+        gradeId: user.getUser.GradeId
       })
       let grade = ''
       const competencies = response.competencies
@@ -173,7 +174,8 @@ export default function Competencies () {
   const usersFromLeader = async () => {
     try {
       const response = await request('assignUsers', 'POST', {
-        id: user.getUser.id
+        id: user.getUser.id,
+
       })
 
       setUsers(response.users)
@@ -182,15 +184,6 @@ export default function Competencies () {
       console.log(error)
     }
   }
-
-
-  useEffect(() => {
-    getGrades()
-    getCompetencies()
-    getAssignedCompetences()
-    usersFromLeader()
-  }, [])
-  
 
   const handleDeserve = (value, index) => {
     const rowsCopy = rows.slice()
@@ -268,8 +261,10 @@ export default function Competencies () {
 
   const handleChangeUser = async (evt) => {
     try {
+      let user = users.find(user => user.id === evt.target.value)
       let response = await request('assignCompetencesList', 'POST', {
-        id: evt.target.value
+        id: user.id,
+        gradeId: user.GradeId
       })
       setUserValue(evt.target.value)
       setUserCompetencies(response.competencies)
@@ -277,6 +272,17 @@ export default function Competencies () {
       console.log(error)
     }
   }
+
+  useEffect(() => {
+    getGrades()
+    getCompetencies()
+    usersFromLeader()
+    getAssignedCompetences()
+  }, [])
+
+  useEffect(() => {
+    console.log(rows)
+  }, [rows])
 
   return (
   <Container>
@@ -308,8 +314,8 @@ export default function Competencies () {
               <TableHead>
                 <TableRow>
                   <TableCell>Название Компетенции</TableCell>
-                  <TableCell align="left">Соответствие</TableCell>
-                  <TableCell align="left">Развитие</TableCell>
+                  <TableCell align="left">Освоено</TableCell>
+                  <TableCell align="left">Обучение</TableCell>
                   <TableCell align="left">Грейд</TableCell>
                 </TableRow>
               </TableHead>
@@ -342,7 +348,7 @@ export default function Competencies () {
             </Table>
           </TableContainer>
           <div style={{ width: 280, height: 280, marginLeft: 20}}>
-            <p>Диаграмма соответсвия матрица</p>
+            <p>Диаграмма соответсвия</p>
             <Pie options={option} data={chartData} />
           </div>
         </div>
@@ -383,8 +389,8 @@ export default function Competencies () {
               <TableHead>
                 <TableRow>
                   <TableCell>Название Компетенции</TableCell>
-                  <TableCell align="left">Соответствие</TableCell>
-                  <TableCell align="left">Развитие</TableCell>
+                  <TableCell align="left">Освоено</TableCell>
+                  <TableCell align="left">Обучение </TableCell>
                   <TableCell align="left">Грейд</TableCell>
                 </TableRow>
               </TableHead>
@@ -482,7 +488,12 @@ export default function Competencies () {
       <Box sx={{...style, width: 1000, height: 600, overflowY: 'auto'}}>
         <TableComponent onSelectCheckbox={(selected) => {
             setSelected(selected)
-          }} 
+          }}
+          selectFilter
+          selectFilterItems={
+            grades.map(grade => ({ name: grade.name, value: grade.name }))
+          }
+          filterBySelect='grade'
           withCheckbox 
           header={[{label: 'Компетенция'}, {label: 'Грейд'}]}  
           rows={competencies}/>

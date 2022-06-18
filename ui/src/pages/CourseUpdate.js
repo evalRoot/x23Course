@@ -49,6 +49,9 @@ export default function CourseUpdate() {
     })()
   }, [id])
 
+  useEffect(() => {
+    labels = []
+  }, [])
 
   const addStep = () => {
     const stepClone = [...steps]
@@ -94,6 +97,11 @@ export default function CourseUpdate() {
       }
 
       if (edit) {
+        for (let j = 0; j < editorStateRefs.current.length; j++) {
+          if (editorStateRefs.current[j] === undefined) {
+            editorStateRefs.current[j] = JSON.parse(steps[j].description)
+          }
+        }
       } else {
         if (steps.length !== editorStateRefs.current.length || steps.length !== labels.length) {
           notifySet({
@@ -197,7 +205,7 @@ export default function CourseUpdate() {
               <StepButton
                 onClick={handleStep(index)}
               >
-                Модуль
+                Модуль {labels.length !== 0 ? labels[index] : ''}
               </StepButton>
               <StepContent>
                 <TextField

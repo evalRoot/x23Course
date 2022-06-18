@@ -76,13 +76,36 @@ class competenciesController {
 
   async getAssigned (req, res) {
     try {
-      const {id} = req.body
-      const userCompetencies = await UserCompetencies.findAll({ where: {UserId: id} })
+      const {id, gradeId} = req.body
+      let userCompetencies = await UserCompetencies.findAll({ where: {UserId: id} })
       const competencies = []
       let competence = []
 
-      console.log(userCompetencies)
 
+      if (userCompetencies.length === 0) {
+        userCompetencies = await Competencies.findAll({where: { GradeId: gradeId } })
+        
+        for (let i = 0; i < userCompetencies.length; i++) {
+          competencies.push({
+            name: userCompetencies[i].name,
+            isDeserved: false,
+            isGrowth: false,
+            gradeId: competence.GradeId,
+            CompetencyId: userCompetencies[i].id
+          })
+        }
+
+        const mapped = userCompetencies.map(obj => obj.dataValues)
+        for (let j = 0; j < mapped.length; j++) {
+          await UserCompetencies.create({
+            isDeserved: false,
+            isGrowth: false,
+            CompetencyId: mapped[j].id,
+            UserId: id
+          })
+        }
+        return res.status(200).json({competencies})
+      }
 
       for (let i = 0; i < userCompetencies.length; i++) {
         competence = await Competencies.findOne({ where: { id: userCompetencies[i].CompetencyId } })
