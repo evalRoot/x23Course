@@ -166,7 +166,7 @@ export default function CourseDetail (props) {
             }
             {
             isCourseFinish &&
-              <div style={{ padding: 15, borderRadius: 10, textAlign: 'center', width: 300, marginTop: 15, color: 'white', backgroundColor: '#7CFC00'}} severity="info">Вы успешно завершили курс</div>
+              <div style={{ padding: 15, borderRadius: 10, textAlign: 'center', width: 300, marginTop: 15, color: 'white', backgroundColor: '#90EE90'}} severity="info">Вы успешно завершили курс</div>
             }
           </>
         )

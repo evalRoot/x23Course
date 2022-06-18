@@ -142,6 +142,7 @@ export default function Competencies () {
 
 
       competencies.forEach((competence, index) => {
+        console.log(competence)
         grade = gradeDecode(competence.gradeId)
         competence.gradeId = grade
         if (rows.length !== 0 && index < rows.length && merge) {
@@ -267,6 +268,9 @@ export default function Competencies () {
         gradeId: user.GradeId
       })
       setUserValue(evt.target.value)
+      response.competencies.forEach(competence => {
+        competence.gradeId = gradeDecode(competence.gradeId)
+      })
       setUserCompetencies(response.competencies)
     } catch (error) {
       console.log(error)
@@ -316,7 +320,7 @@ export default function Competencies () {
                   <TableCell>Название Компетенции</TableCell>
                   <TableCell align="left">Освоено</TableCell>
                   <TableCell align="left">Обучение</TableCell>
-                  <TableCell align="left">Грейд</TableCell>
+                  <TableCell align="left">Уровень</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -391,7 +395,7 @@ export default function Competencies () {
                   <TableCell>Название Компетенции</TableCell>
                   <TableCell align="left">Освоено</TableCell>
                   <TableCell align="left">Обучение </TableCell>
-                  <TableCell align="left">Грейд</TableCell>
+                  <TableCell align="left">Уровень</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -495,7 +499,7 @@ export default function Competencies () {
           }
           filterBySelect='grade'
           withCheckbox 
-          header={[{label: 'Компетенция'}, {label: 'Грейд'}]}  
+          header={[{label: 'Компетенция'}, {label: 'Уровень'}]}  
           rows={competencies}/>
         <Container>
           <Button style={{marginTop: 20}} variant="contained" color="primary" onClick={assignCompetences}> Добавить </Button>
