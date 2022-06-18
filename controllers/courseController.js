@@ -257,9 +257,13 @@ class CourseController {
         UserId: userId,
         CourseId: courseId
       } })
-
+      let finish = false
       if (candidate) {
-        return res.status(200).json({ access: true })
+        if (candidate.score > 70) {
+          finish = true
+        }
+
+        return res.status(200).json({ access: true, finish })
       }
 
       return res.status(200).json({ access: false })

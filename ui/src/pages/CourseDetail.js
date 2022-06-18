@@ -38,6 +38,7 @@ export default function CourseDetail (props) {
   const [assignMessage, setAssignMessage] = useState('')
   const [assignFailedMessage, setAssignFailedMessage] = useState('')
   const [isCourseAccsess, setCourseAccess] = useState(false)
+  const [isCourseFinish, setCourseFinish] = useState(false)
 
   const toModule = (index) => {
     navigate('module-detail', {
@@ -59,6 +60,7 @@ export default function CourseDetail (props) {
         })
         
         setCourseAccess(isAssigned.access)
+        setCourseFinish(isAssigned.finish)
 
 
         const responseCourse = await request('course', 'POST', {id})
@@ -161,6 +163,10 @@ export default function CourseDetail (props) {
             }
             {isCourseAccsess &&
               <div style={{ padding: 15, borderRadius: 10, textAlign: 'center', width: 300, marginTop: 15, color: 'white', backgroundColor: 'rgb(102, 178, 255)'}} severity="info">Вы записаны на курс</div>
+            }
+            {
+            isCourseFinish &&
+              <div style={{ padding: 15, borderRadius: 10, textAlign: 'center', width: 300, marginTop: 15, color: 'white', backgroundColor: '#7CFC00'}} severity="info">Вы успешна завершили курс</div>
             }
           </>
         )

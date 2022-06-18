@@ -100,6 +100,7 @@ export default function TableComponent(props) {
 
   useEffect(() => {
     setPage(0)
+    console.log(rowsProps)
     const rowsCopy = rowsProps
     let filteredItems = rowsCopy
 
@@ -109,7 +110,7 @@ export default function TableComponent(props) {
 
     setRows(filteredItems)
 
-  }, [filterBySelectVal])
+  }, [filterBySelectVal, rowsProps])
 
   const handleRequestSort = (evt, property) => {
     const isAsc = orderBy === property && order === 'asc';
