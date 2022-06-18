@@ -100,7 +100,6 @@ export default function TableComponent(props) {
 
   useEffect(() => {
     setPage(0)
-    console.log(rowsProps)
     const rowsCopy = rowsProps
     let filteredItems = rowsCopy
 
